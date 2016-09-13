@@ -73,7 +73,6 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
     }
 
     private boolean listenerFacebook() {
-
         if (FirebaseHelper.modelUser.getUserName() != null) {
             t = true;
         }
@@ -82,17 +81,16 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
                 t = true;
             }
         }
-        else if (FirebaseHelper.modelUser != null)
-        {
-            t = true;
-        }
+//        else if (FirebaseHelper.modelUser != null)
+//        {
+//            t = true;
+//        }
         else if(FirebaseHelper.photoDownload !=null){
             t = true;
         }
         else{
         t = false;
         }
-
         return t;
     }
 
@@ -154,7 +152,7 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            if (listenerFacebook()) {
+            if (!listenerFacebook()) {
                 loginUserFacebook();
                 Picasso.with(context)
                         .load(profile.getProfilePictureUri(150, 150))
@@ -174,10 +172,11 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
 
                             }
                         });
+                Log.e("TESTING", "LOG");
             }
-            Log.e("TESTING", "LOG");
-            LoginFacebookProgress2 loginFacebookProgress2 = new LoginFacebookProgress2();
-            loginFacebookProgress2.execute();
+                LoginFacebookProgress2 loginFacebookProgress2 = new LoginFacebookProgress2();
+                loginFacebookProgress2.execute();
+
         }
     }
 
@@ -190,7 +189,7 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
 
         @Override
         protected Void doInBackground(Void... voids) {
-            if (listenerFacebook()) {
+            if (!listenerFacebook()) {
                 do {
                     try {
                         Thread.sleep(200);

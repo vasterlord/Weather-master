@@ -12,11 +12,7 @@ public interface MainView {
 
     void showProgress();
 
-    void toastShow(String userName);
-
     void setUser(ModelUser activeUser);
-
-    void setViseibleLogin();
 
     void setDialogClosed();
 
