@@ -62,6 +62,7 @@
                         android:layout_gravity="left|center_vertical"
                         android:layout_marginBottom="0dp" android:textSize="22sp" android:layout_marginTop="60dp"
                         />
+
                     <TextView
                         android:id="@+id/updated_field"
                         android:layout_width="wrap_content"
@@ -97,7 +98,8 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/refreshImageView"
                         android:src="@drawable/refresh" android:layout_gravity="center_horizontal|top"
-                        android:layout_marginTop="0dp"/>
+                        android:layout_marginTop="0dp"
+                        android:visibility="visible" />
                     <LinearLayout
                         android:orientation="horizontal"
                         android:layout_width="match_parent"
@@ -142,6 +144,16 @@
                         </LinearLayout>
                     </HorizontalScrollView>
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/no_daily_forecast_data"
+                        android:layout_centerVertical="true"
+                        android:layout_centerHorizontal="true"
+                        android:textColor="#ffffffff"
+                        android:layout_gravity="center"
+                        android:id="@+id/tvEmpty" />
+
                 </FrameLayout>
 
 
@@ -150,14 +162,14 @@
                 android:id="@+id/tabLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?attr/colorPrimary"
+                android:background="#FFEA5307"
                 android:minHeight="?attr/actionBarSize"
                 android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
                 <android.support.v4.view.ViewPager
                     android:id="@+id/pager"
                     android:layout_width="match_parent"
-                    android:layout_height="400dp"/>
+                    android:layout_height="420dp"/>
 
             </LinearLayout>
         </ScrollView>

@@ -35,4 +35,19 @@ public class CityPreference {
         prefs.edit().putString("url", url).commit();
     }
 
+    public  void setLat(double lat)
+    {
+        prefs.edit().putFloat("lat", (float) lat).commit();
+    }
+    public  void setLon(double lon)
+    {
+        prefs.edit().putFloat("lon", (float) lon).commit();
+    }
+    public float getLon(){
+        return prefs.getFloat("lon", (float) 0.0);
+    }
+    public float getLat(){
+        return prefs.getFloat("lat", (float) 0.0);
+    }
+
 }

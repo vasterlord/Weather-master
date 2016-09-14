@@ -1,9 +1,9 @@
 package ivanrudyk.com.open_weather_api.ui.fragment;
 
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -32,7 +32,6 @@ import ivanrudyk.com.open_weather_api.helpers.PhotoHelper;
 import ivanrudyk.com.open_weather_api.model.ModelUser;
 import ivanrudyk.com.open_weather_api.presenter.fragment.NavigationDraverPresenterImplement;
 import ivanrudyk.com.open_weather_api.presenter.fragment.NavigatonDraverPresenter;
-import ivanrudyk.com.open_weather_api.ui.activity.SettingsActivity;
 
 
 /**
@@ -40,6 +39,26 @@ import ivanrudyk.com.open_weather_api.ui.activity.SettingsActivity;
  */
 
 public class NavigationDraverFragment extends Fragment implements NavigationDraverView {
+
+    public interface onSomeEventListenerDraver {
+        public void eventMapsOpen(String s);
+
+        void eventChangeSity();
+
+        void eventCarentLocation();
+    }
+
+    private onSomeEventListenerDraver someEventListener;
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            someEventListener = (onSomeEventListenerDraver) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement onSomeEventListener");
+        }
+    }
 
     public static final String PREF_FILE_NAME = "preffilename";
     public static final String KEY_USER_LEARNED_DRAWER = "user_learned_drawer";
@@ -51,10 +70,11 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
     Button bAddLocation;
     EditText etAddLocation;
     private ProgressBar progressBar;
-    LinearLayout linearLayoutAddLoc, linearLayoutSettings;
+    LinearLayout linearLayoutAddLoc, linearLayoutCarentLocation, linearLayoutChangeCity;
     PhotoHelper photoHelper = new PhotoHelper();
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
+    private LinearLayout linearLayoutMapsOpen;
     private boolean mUserLearndDrawer;
     private boolean mFromSavedInstanseState;
     private View containerView;
@@ -104,9 +124,11 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
         tvNavUserName = (TextView) v.findViewById(R.id.tvDrUserName);
         tvNavLogin = (TextView) v.findViewById(R.id.tvDrLogin);
         lvLocation = (ListView) v.findViewById(R.id.listViewLocation);
+        linearLayoutMapsOpen = (LinearLayout) v.findViewById(R.id.linearLayoutMaps);
         bAdd = (ImageView) v.findViewById(R.id.ivAddLocation);
         linearLayoutAddLoc = (LinearLayout) v.findViewById(R.id.linLayoutAddLoc);
-        linearLayoutSettings = (LinearLayout) v.findViewById(R.id.linearLayoutSettings);
+        linearLayoutCarentLocation = (LinearLayout) v.findViewById(R.id.linearLayoutCarentLoc);
+        linearLayoutChangeCity = (LinearLayout) v.findViewById(R.id.linearLayoutChangeCity); 
         draverPresenter = new NavigationDraverPresenterImplement(this);
         linearLayoutAddLoc.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -129,11 +151,22 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
                 }
             }
         });
-        linearLayoutSettings.setOnClickListener(new View.OnClickListener() {
+        linearLayoutCarentLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), SettingsActivity.class);
-                startActivity(intent);
+                someEventListener.eventCarentLocation();  
+            }
+        });
+        linearLayoutMapsOpen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                someEventListener.eventMapsOpen("OK");
+            }
+        });
+        linearLayoutChangeCity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                someEventListener.eventChangeSity();
             }
         });
     }

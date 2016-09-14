@@ -5,9 +5,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -78,7 +80,7 @@ import ivanrudyk.com.open_weather_api.ui.fragment.DailyWeatherFragment;
 import ivanrudyk.com.open_weather_api.ui.fragment.HourlyWeatherFragment;
 import ivanrudyk.com.open_weather_api.ui.fragment.NavigationDraverFragment;
 
-public class MainActivity extends AppCompatActivity implements MainView, View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements MainView, NavigationDraverFragment.onSomeEventListenerDraver, View.OnClickListener {
 
 
     private Toolbar toolbar;
@@ -177,11 +179,30 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
     private final HourlyWeatherFragment hourlyWeatherFragment = new HourlyWeatherFragment();
     private final DailyWeatherFragment dailyWeatherFragment = new DailyWeatherFragment();
     HeadActivityTask mt;
-    //-------------------------------------------------------------------------------------------------------------------
-    //-------------------------------------------------------------------------------------------------------------------
-    //-------------------------------------------------------------------------------------------------------------------
-    //-------------------------------------------------------------------------------------------------------------------
 
+    @Override
+    public void eventMapsOpen(String s) {
+        Intent intent = new Intent(this, MapsActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public void eventChangeSity() {
+        if (!Helper.isNetworkAvailable(getApplicationContext())) {
+            Toast.makeText(MainActivity.this,
+                    getApplicationContext().getString(R.string.no_internet_connetion),
+                    Toast.LENGTH_LONG).show();
+        } else if (Helper.isNetworkAvailable(getApplicationContext())) {
+            showInputDialog();
+        }
+    }
+
+    @Override
+    public void eventCarentLocation() {
+        LocationManager locationManager = (LocationManager) getApplication()
+                .getSystemService(LOCATION_SERVICE);
+        carentLOcationRefresh(locationManager);
+    }
     public class HeadActivityTask extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -232,6 +253,12 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
 
         tabLayout.setupWithViewPager(viewPager);
     }
+    //-------------------------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------------------------------
+
+
 
     private void updateWeatherData(final String tempCity, final double tempLat, final double tempLon, final String tempForecastUrl) {
         new Thread() {
@@ -332,8 +359,43 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
         }.start();
     }
 
+    public void toggleRefresh() {
+        final LocationManager locationManager = (LocationManager) getApplication()
+                .getSystemService(LOCATION_SERVICE);
+        if (mProgressBar.getVisibility() == View.INVISIBLE) {
+            mProgressBar.setVisibility(View.VISIBLE);
+            mRefreshImageView.setVisibility(View.INVISIBLE);
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... voids) {
+                    if ((nowURL == BASE_CURRENT_WEATHER_URL_COORD) && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        coord = mHelper.CoordTracker(getApplicationContext());
+                        updateWeatherData(city, coord[0], coord[1], nowURL);
+                        new CityPreference(MainActivity.this).setLat(coord[0]);
+                        new CityPreference(MainActivity.this).setLon(coord[1]);
+                    } else {
+                        //do nothing
+                    }
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    super.onPostExecute(aVoid);
+                    mProgressBar.setVisibility(View.INVISIBLE);
+                    mRefreshImageView.setVisibility(View.VISIBLE);
+                }
+            };
+        }
+    }
+
     protected void updateDisplay() {
-//        mEmptyTextView.setVisibility(View.INVISIBLE);
+        mEmptyTextView.setVisibility(View.INVISIBLE);
         CurrentlyWeather currentlyWeather = mForecast.getCurrent();
         cityField.setText(currentlyWeather.mLocationCurrentWeather.getCity().toUpperCase(Locale.US) +
                 ", " +
@@ -389,8 +451,8 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
     public void changeCity(String citySH) {
         nowURL = BASE_CURRENT_WEATHER_URL_CITY;
         updateWeatherData(citySH, coord[0], coord[1], nowURL);
-        HeadActivityTask headActivityTask = new HeadActivityTask();
-        headActivityTask.execute();
+        HeadActivityTask headActivityTask2 = new HeadActivityTask();
+        headActivityTask2.execute();
         new CityPreference(this).setCity(citySH);
         new CityPreference(this).setNowURL(nowURL);
     }
@@ -432,6 +494,7 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
         Realm.setDefaultConfiguration(realmConfiguration);
         mAuth = FirebaseAuth.getInstance();
         profile = Profile.getCurrentProfile();
+
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -449,6 +512,7 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
             }
         };
         inithializeComponent();
+        toggleRefresh();
         presenter = new MainPresenterImplement(this);
         users = dbHelper.retriveUserFromRealm(this);
         Log.e(TAG, "wwwwwwwwwwwwwwwwwwwwww" + users.getUserName());
@@ -459,6 +523,7 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
         InitializeDialog();
         LoginProgress loginProgress = new LoginProgress();
         loginProgress.execute();
+        LocationManager locationManager;
 //-------------------------------------------------------------------------------------------------------------------
 
         mRefreshImageView = (ImageView) findViewById(R.id.refreshImageView);
@@ -472,17 +537,29 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
         currentTemperatureField = (TextView) findViewById(R.id.current_temperature_field);
         descriptonField = (TextView) findViewById(R.id.decription_field);
         iconView = (ImageView) findViewById(R.id.icon_Image);
-//        mEmptyTextView = (TextView) findViewById(R.id.tvEmpty);
-//      mEmptyTextView.setVisibility(View.INVISIBLE);
-        Log.e("TESTTTTT: " , new CityPreference(MainActivity.this).getCity());
-        Log.e("TESTTTTT toooo : " , new CityPreference(MainActivity.this).getNowURL());
+        mEmptyTextView = (TextView) findViewById(R.id.tvEmpty);
+        mEmptyTextView.setVisibility(View.INVISIBLE);
+        Log.e("TESTTTTT: ", new CityPreference(MainActivity.this).getCity());
+        Log.e("TESTTTTT toooo : ", new CityPreference(MainActivity.this).getNowURL());
         coord = mHelper.CoordTracker(getApplicationContext());
-        Log.e("corddddddddd : " , coord[0] + "  " + coord[1]);
-        updateWeatherData(new CityPreference(MainActivity.this).getCity(),  coord[0],
-                coord[1], new CityPreference(MainActivity.this).getNowURL());
-        mRefreshImageView.setOnClickListener(this);
+        Log.e("corddddddddd : ", coord[0] + "  " + coord[1]);
+        updateWeatherData(new CityPreference(MainActivity.this).getCity(), new CityPreference(MainActivity.this).getLat(),
+                new CityPreference(MainActivity.this).getLon(), new CityPreference(MainActivity.this).getNowURL());
+        mRefreshImageView.setVisibility(View.VISIBLE);
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
         viewPager = (ViewPager) findViewById(R.id.pager);
+        locationManager = (LocationManager) getApplication()
+                .getSystemService(LOCATION_SERVICE);
+        ;
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            if (coord[0] == 0) {
+
+                showSettingsAlert();
+            }
+        } else {
+            updateWeatherData(new CityPreference(MainActivity.this).getCity(), coord[0],
+                    coord[1], new CityPreference(MainActivity.this).getNowURL());
+        }
         mt = new HeadActivityTask();
         mt.execute();
 
@@ -580,51 +657,58 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
                 getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_draver);
         draverFragment.setUp(R.id.fragment_navigation_draver, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar, users, uid);
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_weather, menu);
         return true;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.change_city)
-        {
-            if(!Helper.isNetworkAvailable(getApplicationContext()))
-            {
+        LocationManager locationManager = (LocationManager) getApplication()
+                .getSystemService(LOCATION_SERVICE);
+        if (item.getItemId() == R.id.change_city) {
+            if (!Helper.isNetworkAvailable(getApplicationContext())) {
                 Toast.makeText(MainActivity.this,
                         getApplicationContext().getString(R.string.no_internet_connetion),
                         Toast.LENGTH_LONG).show();
-            }
-            else if(Helper.isNetworkAvailable(getApplicationContext()))
-            {
+            } else if (Helper.isNetworkAvailable(getApplicationContext())) {
                 showInputDialog();
             }
-        }
-        else if(item.getItemId() == R.id.current_location)
-        {
-            if(!Helper.isNetworkAvailable(getApplicationContext()))
-            {
-                Toast.makeText(MainActivity.this,
-                        getApplicationContext().getString(R.string.no_internet_connetion),
-                        Toast.LENGTH_LONG).show();
-            }
-            else if(Helper.isNetworkAvailable(getApplicationContext())) {
-                nowURL = BASE_CURRENT_WEATHER_URL_COORD;
-                coord = mHelper.CoordTracker(getApplicationContext());
-                Log.e("locccccccc : " , coord[0] + " " + coord[1]);
-                updateWeatherData(city, coord[0], coord[1], nowURL);
-                new CityPreference(this).setNowURL(nowURL);
-            }
-        }
-        else if(item.getItemId() == R.id.exit)
-        {
+        } else if (item.getItemId() == R.id.current_location) {
+            carentLOcationRefresh(locationManager);
+        } else if (item.getItemId() == R.id.exit) {
             finish();
-        }
-        else if(item.getItemId() == R.id.refresh)
-        {
-            updateWeatherData(city, coord[0], coord[1], nowURL);
+        } else if (item.getItemId() == R.id.refresh) {
+            if ((nowURL == BASE_CURRENT_WEATHER_URL_COORD) && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                coord = mHelper.CoordTracker(getApplicationContext());
+                updateWeatherData(city, coord[0], coord[1], nowURL);
+                new CityPreference(this).setLat(coord[0]);
+                new CityPreference(this).setLon(coord[1]);
+            } else {
+                //do nothing
+            }
         }
         return false;
+    }
+
+    private void carentLOcationRefresh(LocationManager locationManager) {
+        if (!Helper.isNetworkAvailable(getApplicationContext())) {
+            Toast.makeText(MainActivity.this,
+                    getApplicationContext().getString(R.string.no_internet_connetion),
+                    Toast.LENGTH_LONG).show();
+        } else if (Helper.isNetworkAvailable(getApplicationContext()) && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            nowURL = BASE_CURRENT_WEATHER_URL_COORD;
+            coord = mHelper.CoordTracker(getApplicationContext());
+            Log.e("locccccccc : ", coord[0] + " " + coord[1]);
+            updateWeatherData(city, coord[0], coord[1], nowURL);
+            new CityPreference(this).setNowURL(nowURL);
+            new CityPreference(this).setLat(coord[0]);
+            new CityPreference(this).setLon(coord[1]);
+            HeadActivityTask headActivityTask = new HeadActivityTask();
+            headActivityTask.execute();
+        }
     }
 
 
@@ -702,6 +786,9 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
                 break;
             case R.id.currentLoc:
                 break;
+            case R.id.refreshImageView:
+                toggleRefresh();
+                break;
             case R.id.cityLoc:
                 break;
             default:
@@ -741,6 +828,33 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
             }
         });
         builder.show();
+    }
+
+
+    public void showSettingsAlert() {
+        android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(this);
+        // Setting Dialog Title
+        alertDialog.setTitle("GPS is settings");
+        // Setting Dialog Message
+        alertDialog.setMessage("GPS is not enabled. Do you want to go to settings menu?");
+
+        // n pressing the Settings button.
+        alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                MainActivity.this.startActivity(intent);
+            }
+        });
+
+        // On pressing the cancel button
+        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        // Showing Alert Message
+        alertDialog.show();
     }
 
     public void dialogClosed() {

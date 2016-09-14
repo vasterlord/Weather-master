@@ -19,6 +19,7 @@ import ivanrudyk.com.open_weather_api.iterator.activity.MainIterator;
 import ivanrudyk.com.open_weather_api.iterator.activity.MainIteratorImlement;
 import ivanrudyk.com.open_weather_api.iterator.activity.WeatherIterator;
 import ivanrudyk.com.open_weather_api.iterator.activity.WeatherIteratorImplement;
+import ivanrudyk.com.open_weather_api.model.Forecast;
 import ivanrudyk.com.open_weather_api.model.ModelLocation;
 import ivanrudyk.com.open_weather_api.model.ModelUser;
 import ivanrudyk.com.open_weather_api.ui.activity.MainView;
@@ -38,6 +39,10 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
     private FirebaseAuth.AuthStateListener mAuthListener;
     private boolean t;
 
+    public Forecast mForecast = new Forecast();
+
+
+
     ModelUser activeUser = new ModelUser();
     ModelLocation modelLocation = new ModelLocation();
     FirebaseHelper firebaseHelper = new FirebaseHelper();
@@ -48,13 +53,13 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
         this.weatherIterator = new WeatherIteratorImplement();
     }
 
+
     @Override
     public void retriveUserFirebase(String userLogin, String userPassword, Context context) {
         this.context = context;
         mainView.showProgress();
         iterator.login(userLogin, userPassword, this);
     }
-
 
     @Override
     public void setProgressLogin(String uid) {
