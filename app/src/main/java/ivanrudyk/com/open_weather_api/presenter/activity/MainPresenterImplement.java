@@ -17,8 +17,6 @@ import ivanrudyk.com.open_weather_api.helpers.FirebaseHelper;
 import ivanrudyk.com.open_weather_api.helpers.RealmDbHelper;
 import ivanrudyk.com.open_weather_api.iterator.activity.MainIterator;
 import ivanrudyk.com.open_weather_api.iterator.activity.MainIteratorImlement;
-import ivanrudyk.com.open_weather_api.iterator.activity.WeatherIterator;
-import ivanrudyk.com.open_weather_api.iterator.activity.WeatherIteratorImplement;
 import ivanrudyk.com.open_weather_api.model.Forecast;
 import ivanrudyk.com.open_weather_api.model.ModelLocation;
 import ivanrudyk.com.open_weather_api.model.ModelUser;
@@ -27,10 +25,9 @@ import ivanrudyk.com.open_weather_api.ui.activity.MainView;
 /**
  * Created by Ivan on 03.08.2016.
  */
-public class MainPresenterImplement implements MainPresenter, MainIterator.OnMainFinishedListener, WeatherIterator.OnWeatherFinishedListener {
+public class MainPresenterImplement implements MainPresenter, MainIterator.OnMainFinishedListener {
     private MainView mainView;
     private MainIterator iterator;
-    private WeatherIterator weatherIterator;
     private RealmDbHelper dbHelper = new RealmDbHelper();
     private Context context;
     private String uid;
@@ -42,7 +39,6 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
     public Forecast mForecast = new Forecast();
 
 
-
     ModelUser activeUser = new ModelUser();
     ModelLocation modelLocation = new ModelLocation();
     FirebaseHelper firebaseHelper = new FirebaseHelper();
@@ -50,7 +46,6 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
     public MainPresenterImplement(MainView mainView) {
         this.mainView = mainView;
         this.iterator = new MainIteratorImlement();
-        this.weatherIterator = new WeatherIteratorImplement();
     }
 
 
@@ -80,8 +75,7 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
     private boolean listenerFacebook() {
         if (FirebaseHelper.modelUser.getUserName() != null) {
             t = true;
-        }
-        else if (FirebaseHelper.modelUser.getUserName() != null) {
+        } else if (FirebaseHelper.modelUser.getUserName() != null) {
             if (FirebaseHelper.modelUser.getUserName().length() > 0) {
                 t = true;
             }
@@ -90,11 +84,10 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
 //        {
 //            t = true;
 //        }
-        else if(FirebaseHelper.photoDownload !=null){
+        else if (FirebaseHelper.photoDownload != null) {
             t = true;
-        }
-        else{
-        t = false;
+        } else {
+            t = false;
         }
         return t;
     }
@@ -179,8 +172,8 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
                         });
                 Log.e("TESTING", "LOG");
             }
-                LoginFacebookProgress2 loginFacebookProgress2 = new LoginFacebookProgress2();
-                loginFacebookProgress2.execute();
+            LoginFacebookProgress2 loginFacebookProgress2 = new LoginFacebookProgress2();
+            loginFacebookProgress2.execute();
 
         }
     }

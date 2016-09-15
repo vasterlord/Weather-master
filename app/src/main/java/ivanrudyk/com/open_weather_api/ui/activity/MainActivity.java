@@ -77,6 +77,7 @@ import ivanrudyk.com.open_weather_api.model.ModelUser;
 import ivanrudyk.com.open_weather_api.presenter.activity.MainPresenter;
 import ivanrudyk.com.open_weather_api.presenter.activity.MainPresenterImplement;
 import ivanrudyk.com.open_weather_api.ui.fragment.DailyWeatherFragment;
+import ivanrudyk.com.open_weather_api.ui.fragment.FavoriteLocationWeatherFragment;
 import ivanrudyk.com.open_weather_api.ui.fragment.HourlyWeatherFragment;
 import ivanrudyk.com.open_weather_api.ui.fragment.NavigationDraverFragment;
 
@@ -178,6 +179,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     private ViewPager viewPager;
     private final HourlyWeatherFragment hourlyWeatherFragment = new HourlyWeatherFragment();
     private final DailyWeatherFragment dailyWeatherFragment = new DailyWeatherFragment();
+    private final FavoriteLocationWeatherFragment favoriteLocationWeatherFragment = new FavoriteLocationWeatherFragment();
     HeadActivityTask mt;
 
     @Override
@@ -235,19 +237,24 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
                     return hourlyWeatherFragment;
                 } else if (position == 1) {
                     return dailyWeatherFragment;
-                } else return null;
+                }
+ else if(position == 2){
+                return favoriteLocationWeatherFragment;
+                }
+                else return null;
             }
 
             @Override
             public CharSequence getPageTitle(int position) {
                 if (position == 0) return "HOURLY";
                 else if (position == 1) return "7 DAY";
+                else if (position == 2) return "FAVORITES";
                 else return null;
             }
 
             @Override
             public int getCount() {
-                return 2;
+                return 3;
             }
         });
 
@@ -262,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
 
     private void updateWeatherData(final String tempCity, final double tempLat, final double tempLon, final String tempForecastUrl) {
         new Thread() {
-            public void run() {
+                public void run() {
                 if (Helper.isNetworkAvailable(getApplicationContext())) {
                     final String[] forecastUrl = new String[3];
                     String apiKey = "ddec71381c5621cdddefb5c58581e5bc";
@@ -358,6 +365,8 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
             }
         }.start();
     }
+
+
 
     public void toggleRefresh() {
         final LocationManager locationManager = (LocationManager) getApplication()
@@ -562,8 +571,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         }
         mt = new HeadActivityTask();
         mt.execute();
-
-
     }
 
     @Override
@@ -649,6 +656,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         toolbar = (Toolbar) findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+        FirebaseHelper.modelUser = users;
         onCreateNavigationDraver();
     }
 
@@ -899,6 +907,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         LoginProgress loginProgress = new LoginProgress();
         loginProgress.execute();
     }
+
 
     private void setVisibleLoginItem() {
         if (users.getUserName() == null) {

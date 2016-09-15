@@ -20,7 +20,7 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/iconImageView"
+        android:id="@+id/ivImageViewFavorite"
         android:layout_centerVertical="true"
         android:layout_toEndOf="@+id/circleImageView"
         android:paddingLeft="10dp"
@@ -32,8 +32,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/dayNameLabel"
         android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/iconImageView"
-        android:layout_toEndOf="@+id/iconImageView"
+        android:layout_toRightOf="@+id/ivImageViewFavorite"
+        android:layout_toEndOf="@+id/ivImageViewFavorite"
         android:textColor="#ffffffff"
         android:textSize="20sp"
         tools:text="Wednesday"
@@ -44,7 +44,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/temperatureLabel"
+        android:id="@+id/tetvTperatureFavLoc"
         android:layout_alignTop="@+id/circleImageView"
         android:layout_alignBottom="@+id/circleImageView"
         android:layout_alignLeft="@+id/circleImageView"

@@ -15,7 +15,6 @@
         android:layout_height="match_parent"
         android:id="@android:id/list"
         android:layout_alignParentTop="false"
-        android:layout_below="@+id/thisWeekLabel"
         android:layout_above="@+id/locationLabel"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="15dp"
@@ -33,17 +32,6 @@
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:textColor="#ffffffff"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="This Week&apos;s Weather"
-        android:id="@+id/thisWeekLabel"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:textColor="#ffffffff"
-        android:textSize="30sp"
-        android:layout_marginTop="5dp"/>
 
     <TextView
         android:layout_width="wrap_content"

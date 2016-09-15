@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,6 +80,7 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
     private boolean mFromSavedInstanseState;
     private View containerView;
     String uid;
+    private  FavoritesLocationAdapter locationAdapter;
 
     private Dialog d;
 
@@ -169,25 +171,22 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
                 someEventListener.eventChangeSity();
             }
         });
-    }
-
-    public void arrayAdapter() {
-        final FavoritesLocationAdapter locationAdapter = new FavoritesLocationAdapter(this.getContext(), users.getLocation().getLocation());
-        lvLocation.setClickable(true);
+        arrayAdapter();
         lvLocation.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
                 Toast.makeText(getActivity(), "" + locationAdapter.getItem(position), Toast.LENGTH_SHORT).show();
+                Log.e("LOG: ", "Click");
             }
         });
+    }
+
+    public void arrayAdapter() {
+        locationAdapter = new FavoritesLocationAdapter(getActivity(), users.getLocation().getLocation());
         if (users.getLocation() != null && users.getLocation().getLocation().size() > 0) {
             String temp = users.getLocation().getLocation().get(0);
                 lvLocation.setAdapter(locationAdapter);
-
         }
-
-
-
     }
 
     public void setUp(int fragmentId, DrawerLayout drawerLayout, final Toolbar toolBar, ModelUser users, String uid) {
