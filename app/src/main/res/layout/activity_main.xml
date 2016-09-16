@@ -60,8 +60,9 @@
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textColor="#ffffff"
                         android:layout_gravity="left|center_vertical"
-                        android:layout_marginBottom="0dp" android:textSize="22sp" android:layout_marginTop="45dp"
+                        android:layout_marginBottom="0dp" android:textSize="22sp" android:layout_marginTop="60dp"
                         />
+
                     <TextView
                         android:id="@+id/updated_field"
                         android:layout_width="wrap_content"
@@ -69,7 +70,7 @@
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textSize="15sp" android:textColor="#ffffff"
                         android:layout_gravity="center"
-                        android:layout_marginBottom="32dp"/>
+                        android:layout_marginBottom="18dp"/>
                     <TextView
                         android:id="@+id/current_temperature_field"
                         android:layout_width="wrap_content"
@@ -97,41 +98,17 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/refreshImageView"
                         android:src="@drawable/refresh" android:layout_gravity="center_horizontal|top"
-                        android:layout_marginTop="0dp"/>
+                        android:layout_marginTop="0dp"
+                        android:visibility="visible" />
                     <LinearLayout
                         android:orientation="horizontal"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal|bottom"
                         android:layout_marginTop="350dp" android:id="@+id/choose_location_layout">
-                        <Button
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Current place"
-                            android:id="@+id/currentLoc"
-                            android:layout_weight="1"
-                            android:background="#40ffffff"
-                            android:textColor="#ffffffff"
-                            />
 
-                        <Button
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Choose some city"
-                            android:id="@+id/cityLoc"
-                            android:layout_weight="1"
-                            android:background="#40ffffff"
-                            android:textColor="#ffffffff"
-                            />
                     </LinearLayout>
-                    <TextView android:id="@+id/variant_label" android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceLarge" android:textColor="#ffffff"
-                        android:layout_gravity="left|bottom"
-                        android:text="Choose weather location:"
-                        android:textSize="20sp"
-                        android:layout_marginLeft="0dp"
-                        android:layout_marginBottom="50dp"/>
+
                     <HorizontalScrollView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -167,22 +144,33 @@
                         </LinearLayout>
                     </HorizontalScrollView>
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/no_daily_forecast_data"
+                        android:layout_centerVertical="true"
+                        android:layout_centerHorizontal="true"
+                        android:textColor="#ffffffff"
+                        android:layout_gravity="center"
+                        android:id="@+id/tvEmpty" />
+
                 </FrameLayout>
 
 
                 <!-- View pager to swipe views -->
-                <android.support.v4.view.ViewPager
-                    android:id="@+id/pager"
-                    android:layout_width="match_parent"
-                    android:layout_height="400dp"/>
-
                 <android.support.design.widget.TabLayout
                 android:id="@+id/tabLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?attr/colorPrimary"
+                android:background="#FFEA5307"
                 android:minHeight="?attr/actionBarSize"
                 android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+                <android.support.v4.view.ViewPager
+                    android:id="@+id/pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="420dp"/>
+
             </LinearLayout>
         </ScrollView>
 

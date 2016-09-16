@@ -1,0 +1,25 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+tools:context=".ui.activity.MainActivity">
+<item
+    android:id="@+id/change_city"
+    android:orderInCategory="1"
+    android:title="@string/change_city"
+    app:showAsAction="never"/>
+<item
+    android:id="@+id/current_location"
+    android:orderInCategory="2"
+    android:title="Current location"
+    app:showAsAction="never"/>
+<item
+    android:id="@+id/refresh"
+    android:orderInCategory="3"
+    android:title="Refresh"
+    app:showAsAction="never"/>
+<item
+    android:id="@+id/exit"
+    android:orderInCategory="3"
+    android:title="Exit"
+    app:showAsAction="never"/>
+</menu>

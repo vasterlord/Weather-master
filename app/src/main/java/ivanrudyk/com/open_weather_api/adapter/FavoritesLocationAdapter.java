@@ -26,6 +26,7 @@ public class FavoritesLocationAdapter extends BaseAdapter{
 
 
 
+
     @Override
     public int getCount() {
         if(arrayListLocation != null)

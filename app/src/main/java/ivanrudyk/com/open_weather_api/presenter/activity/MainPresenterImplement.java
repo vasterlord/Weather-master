@@ -17,8 +17,7 @@ import ivanrudyk.com.open_weather_api.helpers.FirebaseHelper;
 import ivanrudyk.com.open_weather_api.helpers.RealmDbHelper;
 import ivanrudyk.com.open_weather_api.iterator.activity.MainIterator;
 import ivanrudyk.com.open_weather_api.iterator.activity.MainIteratorImlement;
-import ivanrudyk.com.open_weather_api.iterator.activity.WeatherIterator;
-import ivanrudyk.com.open_weather_api.iterator.activity.WeatherIteratorImplement;
+import ivanrudyk.com.open_weather_api.model.Forecast;
 import ivanrudyk.com.open_weather_api.model.ModelLocation;
 import ivanrudyk.com.open_weather_api.model.ModelUser;
 import ivanrudyk.com.open_weather_api.ui.activity.MainView;
@@ -26,10 +25,9 @@ import ivanrudyk.com.open_weather_api.ui.activity.MainView;
 /**
  * Created by Ivan on 03.08.2016.
  */
-public class MainPresenterImplement implements MainPresenter, MainIterator.OnMainFinishedListener, WeatherIterator.OnWeatherFinishedListener {
+public class MainPresenterImplement implements MainPresenter, MainIterator.OnMainFinishedListener {
     private MainView mainView;
     private MainIterator iterator;
-    private WeatherIterator weatherIterator;
     private RealmDbHelper dbHelper = new RealmDbHelper();
     private Context context;
     private String uid;
@@ -38,6 +36,9 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
     private FirebaseAuth.AuthStateListener mAuthListener;
     private boolean t;
 
+    public Forecast mForecast = new Forecast();
+
+
     ModelUser activeUser = new ModelUser();
     ModelLocation modelLocation = new ModelLocation();
     FirebaseHelper firebaseHelper = new FirebaseHelper();
@@ -45,8 +46,8 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
     public MainPresenterImplement(MainView mainView) {
         this.mainView = mainView;
         this.iterator = new MainIteratorImlement();
-        this.weatherIterator = new WeatherIteratorImplement();
     }
+
 
     @Override
     public void retriveUserFirebase(String userLogin, String userPassword, Context context) {
@@ -54,7 +55,6 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
         mainView.showProgress();
         iterator.login(userLogin, userPassword, this);
     }
-
 
     @Override
     public void setProgressLogin(String uid) {
@@ -73,26 +73,22 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
     }
 
     private boolean listenerFacebook() {
-
         if (FirebaseHelper.modelUser.getUserName() != null) {
             t = true;
-        }
-        else if (FirebaseHelper.modelUser.getUserName() != null) {
+        } else if (FirebaseHelper.modelUser.getUserName() != null) {
             if (FirebaseHelper.modelUser.getUserName().length() > 0) {
                 t = true;
             }
         }
-        else if (FirebaseHelper.modelUser != null)
-        {
+//        else if (FirebaseHelper.modelUser != null)
+//        {
+//            t = true;
+//        }
+        else if (FirebaseHelper.photoDownload != null) {
             t = true;
+        } else {
+            t = false;
         }
-        else if(FirebaseHelper.photoDownload !=null){
-            t = true;
-        }
-        else{
-        t = false;
-        }
-
         return t;
     }
 
@@ -154,7 +150,7 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            if (listenerFacebook()) {
+            if (!listenerFacebook()) {
                 loginUserFacebook();
                 Picasso.with(context)
                         .load(profile.getProfilePictureUri(150, 150))
@@ -174,10 +170,11 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
 
                             }
                         });
+                Log.e("TESTING", "LOG");
             }
-            Log.e("TESTING", "LOG");
             LoginFacebookProgress2 loginFacebookProgress2 = new LoginFacebookProgress2();
             loginFacebookProgress2.execute();
+
         }
     }
 
@@ -190,7 +187,7 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
 
         @Override
         protected Void doInBackground(Void... voids) {
-            if (listenerFacebook()) {
+            if (!listenerFacebook()) {
                 do {
                     try {
                         Thread.sleep(200);

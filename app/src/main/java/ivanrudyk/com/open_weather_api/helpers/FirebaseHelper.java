@@ -178,13 +178,22 @@ public class FirebaseHelper {
 
         @Override
         protected Void doInBackground(String... strings) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            do {
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }while (modelLocation.getLocation().size()==0);
+
             listLocation.clear();
+
+            if (modelLocation.getLocation().get(0).equals("")){
+
+            }
+            else
             listLocation.addAll(modelLocation.getLocation());
+
             listLocation.add(strings[0]);
             mlocation.setLocation(listLocation);
             refLocation.setValue(mlocation);
