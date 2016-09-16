@@ -14,7 +14,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/circleImageView"
         android:src="@drawable/bg_temperature"
-        android:layout_marginLeft="0dp" android:layout_alignTop="@+id/dayNameLabel"
+        android:layout_marginLeft="0dp"
+        android:layout_alignTop="@+id/dayNameLabel"
         android:layout_alignParentStart="true"/>
 
     <ImageView

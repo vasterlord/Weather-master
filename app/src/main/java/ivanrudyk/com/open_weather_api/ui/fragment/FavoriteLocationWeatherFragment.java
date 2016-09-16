@@ -67,24 +67,22 @@ public class FavoriteLocationWeatherFragment extends Fragment {
 
             @Override
             protected Void doInBackground(Void... voids) {
+                int i =0;
                 do
                     try {
                         Thread.sleep(100);
+                        i++;
                         Log.e("INTERNALLL: ", String.valueOf(FavoriteLocationWeather.listLocation.size()));
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                while (FavoriteLocationWeather.listLocation.size() == 0);
+                while (FavoriteLocationWeather.listLocation.size() == 0&&i<10);
 
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-
-//                for (int i =0; i< FirebaseHelper.modelUser.getLocation().getLocation().size(); i++) {
-//                    retriveWeatherData(FirebaseHelper.modelUser.getLocation().getLocation().get(i));
-//                }
 
                 return null;
             }
@@ -104,12 +102,6 @@ public class FavoriteLocationWeatherFragment extends Fragment {
     }
 
     private void setAdapter(ArrayList<FavoriteLocationWeather> arrayListLocation) {
-//        for (int i = 0; i<10 ; i++){
-//            favoritLocWeather.setCity("dbn");
-//            favoritLocWeather.setSummary("gnazb");
-//            favoritLocWeather.setTemperature("34");
-//            arrayListLocation.add(favoritLocWeather);
-//        }
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         resV.setLayoutManager(layoutManager);
         favoriteAdapter = new FavoritesLocationAdapterWeather(getContext(), arrayListLocation);

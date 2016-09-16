@@ -6,7 +6,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -24,12 +23,12 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import ivanrudyk.com.open_weather_api.R;
 import ivanrudyk.com.open_weather_api.adapter.FavoritesLocationAdapter;
 import ivanrudyk.com.open_weather_api.helpers.FirebaseHelper;
 import ivanrudyk.com.open_weather_api.helpers.PhotoHelper;
+import ivanrudyk.com.open_weather_api.model.FavoriteLocationWeather;
 import ivanrudyk.com.open_weather_api.model.ModelUser;
 import ivanrudyk.com.open_weather_api.presenter.fragment.NavigationDraverPresenterImplement;
 import ivanrudyk.com.open_weather_api.presenter.fragment.NavigatonDraverPresenter;
@@ -51,15 +50,7 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
 
     private onSomeEventListenerDraver someEventListener;
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            someEventListener = (onSomeEventListenerDraver) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement onSomeEventListener");
-        }
-    }
+
 
     public static final String PREF_FILE_NAME = "preffilename";
     public static final String KEY_USER_LEARNED_DRAWER = "user_learned_drawer";
@@ -70,6 +61,7 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
     ImageView bAdd;
     Button bAddLocation;
     EditText etAddLocation;
+
     private ProgressBar progressBar;
     LinearLayout linearLayoutAddLoc, linearLayoutCarentLocation, linearLayoutChangeCity;
     PhotoHelper photoHelper = new PhotoHelper();
@@ -79,10 +71,16 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
     private boolean mUserLearndDrawer;
     private boolean mFromSavedInstanseState;
     private View containerView;
+    private TextView tvDeleteLocation;
+    private ProgressBar prBarDeleteDialogProgBar;
+    private Button bOkDeleteLoc;
+    private Button bCanselDeleteLoc;
+
     String uid;
     private  FavoritesLocationAdapter locationAdapter;
 
-    private Dialog d;
+    private Dialog dialogAdd;
+    private Dialog dialogDelete;
 
     NavigatonDraverPresenter draverPresenter;
 
@@ -103,21 +101,21 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-//        mUserLearndDrawer = Boolean.valueOf((readFromPreferenses(getActivity(), KEY_USER_LEARNED_DRAWER, "false")));
-//        if (savedInstanceState != null) {
-//            mFromSavedInstanseState = true;
-//        }
-
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            someEventListener = (onSomeEventListenerDraver) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement onSomeEventListener");
+        }
     }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         final View v = inflater.inflate(R.layout.fragment_navigation_draver, container, false);
         initializeFragment(v);
+
+
         return v;
     }
 
@@ -136,12 +134,12 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
             @Override
             public void onClick(View view) {
                 if (users.getUserName() != null) {
-                    d = new Dialog(getActivity());
-                    d.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                    d.setContentView(R.layout.add_location_layout);
-                    etAddLocation = (EditText) d.findViewById(R.id.etAddLocation);
-                    bAddLocation = (Button) d.findViewById(R.id.bAddLocation);
-                    progressBar = (ProgressBar) d.findViewById(R.id.progressBarAddLocation);
+                    dialogAdd = new Dialog(getActivity());
+                    dialogAdd.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                    dialogAdd.setContentView(R.layout.add_location_layout);
+                    etAddLocation = (EditText) dialogAdd.findViewById(R.id.etAddLocation);
+                    bAddLocation = (Button) dialogAdd.findViewById(R.id.bOkDeleteLocation);
+                    progressBar = (ProgressBar) dialogAdd.findViewById(R.id.progressBarDeleteLocation);
 
                     bAddLocation.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -149,7 +147,7 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
                             draverPresenter.addLocation(users, uid, etAddLocation.getText().toString());
                         }
                     });
-                    d.show();
+                    dialogAdd.show();
                 }
             }
         });
@@ -172,13 +170,31 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
             }
         });
         arrayAdapter();
-        lvLocation.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    }
+
+    private void deleteDialogOpen(final ModelUser users, final String uid, final int position){
+        dialogDelete = new Dialog(getContext());
+        dialogDelete.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialogDelete.setContentView(R.layout.delete_location_layout);
+        tvDeleteLocation = (TextView) dialogDelete.findViewById(R.id.tvDeleteLocationInfo);
+        bOkDeleteLoc = (Button) dialogDelete.findViewById(R.id.bOkDeleteLocation);
+        bCanselDeleteLoc = (Button) dialogDelete.findViewById(R.id.bCencelDeleteLocation);
+        prBarDeleteDialogProgBar = (ProgressBar) dialogDelete.findViewById(R.id.progressBarDeleteLocation);
+        tvDeleteLocation.setText("If you want to remove from favorite locations "+FavoriteLocationWeather.listLocation.get(position)+"?");
+
+        bOkDeleteLoc.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-                Toast.makeText(getActivity(), "" + locationAdapter.getItem(position), Toast.LENGTH_SHORT).show();
-                Log.e("LOG: ", "Click");
+            public void onClick(View view) {
+                draverPresenter.deleteLocation(users, uid, position);
             }
         });
+        bCanselDeleteLoc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialogDelete.cancel();
+            }
+        });
+        dialogDelete.show();
     }
 
     public void arrayAdapter() {
@@ -187,6 +203,15 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
             String temp = users.getLocation().getLocation().get(0);
                 lvLocation.setAdapter(locationAdapter);
         }
+
+        lvLocation.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+                Log.e("LOG: ", "City = "+ FavoriteLocationWeather.listLocation.get(position));
+                deleteDialogOpen(users, uid, position);
+//                draverPresenter.deleteLocation(users, uid, position);
+            }
+        });
     }
 
     public void setUp(int fragmentId, DrawerLayout drawerLayout, final Toolbar toolBar, ModelUser users, String uid) {
@@ -247,18 +272,30 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
     }
 
     @Override
-    public void setDialogClosed() {
-        dialogClosed();
+    public void setDialogClosed(String parametrProgress) {
+        dialogClosed(parametrProgress);
     }
 
     @Override
-    public void showProgress() {
-        progressBar.setVisibility(View.VISIBLE);
+    public void showProgress(String param) {
+        if(param.equals("add")) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+        else if(param.equals("delete")) {
+            tvDeleteLocation.setVisibility(View.INVISIBLE);
+            prBarDeleteDialogProgBar.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
-    public void hideProgress() {
-        progressBar.setVisibility(View.INVISIBLE);
+    public void hideProgress(String parametrProgress) {
+        if(parametrProgress.equals("add")) {
+            progressBar.setVisibility(View.INVISIBLE);
+        }
+        else if(parametrProgress.equals("delete")) {
+            tvDeleteLocation.setVisibility(View.VISIBLE);
+            prBarDeleteDialogProgBar.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override
@@ -266,7 +303,16 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
         this.users = user;
     }
 
-    private void dialogClosed() {
-        d.cancel();
+    private void dialogClosed(String parametrProgress) {
+        if(parametrProgress.equals("add")) {
+            dialogAdd.cancel();
+            progressBar.setVisibility(View.INVISIBLE);
+        }
+        else if(parametrProgress.equals("delete")) {
+            dialogDelete.cancel();
+            tvDeleteLocation.setVisibility(View.VISIBLE);
+            prBarDeleteDialogProgBar.setVisibility(View.INVISIBLE);
+        }
+
     }
 }

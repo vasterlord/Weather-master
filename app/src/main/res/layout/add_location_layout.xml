@@ -20,7 +20,7 @@
         android:layout_marginTop="20dp" />
 
     <Button
-        android:id="@+id/bAddLocation"
+        android:id="@+id/bOkDeleteLocation"
         android:layout_width="122dp"
         android:layout_height="62dp"
         android:layout_gravity="center_horizontal"
@@ -31,7 +31,7 @@
 
     <ProgressBar
         android:visibility="invisible"
-        android:id="@+id/progressBarAddLocation"
+        android:id="@+id/progressBarDeleteLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:indeterminateDrawable="@drawable/spinner_ring"

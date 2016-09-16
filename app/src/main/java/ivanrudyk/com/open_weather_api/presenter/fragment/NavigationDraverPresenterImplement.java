@@ -22,6 +22,7 @@ public class NavigationDraverPresenterImplement implements NavigatonDraverPresen
     private NavigationDraverView draverView;
     private NavigationDraverIterator draverIterator;
     private FirebaseHelper helper = new FirebaseHelper();
+    private String parametrProgress;
 
     public NavigationDraverPresenterImplement(NavigationDraverView dreverView) {
         this.draverView = dreverView;
@@ -30,17 +31,30 @@ public class NavigationDraverPresenterImplement implements NavigatonDraverPresen
 
     @Override
     public void addLocation(ModelUser users, String uid, String newLocation) {
-        draverView.showProgress();
+        parametrProgress = "add";
+        draverView.showProgress(parametrProgress);
         draverIterator.addLocation(newLocation, this);
         this.user = users;
         this.uid = uid;
+    }
+
+    @Override
+    public void deleteLocation(ModelUser users, String uid, int position) {
+        parametrProgress = "delete";
+        draverView.showProgress(parametrProgress);
+        this.user = users;
+        this.uid = uid;
+        FirebaseHelper firebaseHelper = new FirebaseHelper();
+        firebaseHelper.deleteLocationFirebaseId(users.getUserName(), uid, position);
+        ImplementAddLocation implementAddLocation = new ImplementAddLocation();
+        implementAddLocation.execute();
     }
 
 
     @Override
     public void onLocatoinAddError() {
         draverView.setLocationAddError("location will not be empty");
-        draverView.hideProgress();
+        draverView.hideProgress(parametrProgress);
     }
 
     @Override
@@ -51,11 +65,8 @@ public class NavigationDraverPresenterImplement implements NavigatonDraverPresen
     }
 
     class ImplementAddLocation extends AsyncTask<String, Void, Void> {
-
-
         @Override
         protected void onPreExecute() {
-
         }
 
         @Override
@@ -76,10 +87,9 @@ public class NavigationDraverPresenterImplement implements NavigatonDraverPresen
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            draverView.hideProgress();
-
+            draverView.hideProgress(parametrProgress);
             draverView.setUpFragment();
-            draverView.setDialogClosed();
+            draverView.setDialogClosed(parametrProgress);
             draverView.setUpFragment();
         }
     }

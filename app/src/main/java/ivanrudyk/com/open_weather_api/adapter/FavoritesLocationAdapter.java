@@ -58,6 +58,10 @@ public class FavoritesLocationAdapter extends BaseAdapter{
             holder = (ViewHolder) convertView.getTag();
         }
         String location = arrayListLocation.get(position);
+        if (location.equals("")){
+
+        }
+        else
         holder.tvLocation.setText(location);
 
         return convertView;
