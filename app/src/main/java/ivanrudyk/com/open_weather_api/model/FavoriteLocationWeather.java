@@ -9,7 +9,7 @@ public class FavoriteLocationWeather {
 
     private String city;
     private double temperature;
-    private String summary;
+    private int imageSummary;
     public static ArrayList<String> listLocation = new ArrayList<>();
 
     public String getCity() {
@@ -28,11 +28,11 @@ public class FavoriteLocationWeather {
         this.temperature = temperature;
     }
 
-    public String getSummary() {
-        return summary;
+    public int getImageSummary() {
+        return imageSummary;
     }
 
-    public void setSummary(String summary) {
-        this.summary = summary;
+    public void setImageSummary(int imageSummary) {
+        this.imageSummary = imageSummary;
     }
 }

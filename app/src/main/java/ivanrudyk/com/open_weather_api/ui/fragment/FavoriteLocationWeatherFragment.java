@@ -27,7 +27,7 @@ import ivanrudyk.com.open_weather_api.model.FavoriteLocationWeather;
 import ivanrudyk.com.open_weather_api.model.WeatherUrl;
 
 
-public class FavoriteLocationWeatherFragment extends Fragment {
+public class FavoriteLocationWeatherFragment extends Fragment  {
 
 
     RecyclerView.Adapter mRecyclerView;
@@ -41,6 +41,7 @@ public class FavoriteLocationWeatherFragment extends Fragment {
     CurrentlyWeather mCurrent = new CurrentlyWeather();
     private final String apiKey = "ddec71381c5621cdddefb5c58581e5bc";
     ArrayList<FavoriteLocationWeather> arrayListLocation = new ArrayList<>();
+    private int pokaznyk;
 
 
 
@@ -64,7 +65,6 @@ public class FavoriteLocationWeatherFragment extends Fragment {
 
     public void UpdateLocationWeather() {
         new AsyncTask<Void, Void, Void>() {
-
             @Override
             protected Void doInBackground(Void... voids) {
                 int i =0;
@@ -91,13 +91,9 @@ public class FavoriteLocationWeatherFragment extends Fragment {
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-
                 retriveWeatherData(FavoriteLocationWeather.listLocation);
-
-
             }
         }.execute();
-
 
     }
 
@@ -113,15 +109,17 @@ public class FavoriteLocationWeatherFragment extends Fragment {
 
     private void retriveWeatherData(final ArrayList<String> city) {
         arrayListLocation.clear();
+        pokaznyk =0;
+        if (FavoriteLocationWeather.listLocation.size()>0) {
+            if (FavoriteLocationWeather.listLocation.get(0).equals("")) {
+                pokaznyk++;
+            }
+        }
         new AsyncTask<Void, String, Void>() {
-
             @Override
             protected Void doInBackground(Void... voids) {
-                int j =0;
-                if (FavoriteLocationWeather.listLocation.get(0).equals("")){
-                    j++;
-                }
-                for (int i = j; i < FavoriteLocationWeather.listLocation.size(); i++) {
+
+                for (int i = pokaznyk; i < FavoriteLocationWeather.listLocation.size(); i++) {
                     try {
                         forecastUrl = RemoteFetch.getCurrent(getContext(), (new URL(String.format(WeatherUrl.BASE_CURRENT_WEATHER_URL_CITY, city.get(i), apiKey))));
                     } catch (MalformedURLException e) {
@@ -139,7 +137,7 @@ public class FavoriteLocationWeatherFragment extends Fragment {
                     }
                     FavoriteLocationWeather favoritLocWeather = new FavoriteLocationWeather();
                     favoritLocWeather.setCity(mCurrent.mLocationCurrentWeather.getCity());
-                    favoritLocWeather.setSummary(mCurrent.mCurrentCondition.getDescription());
+                    favoritLocWeather.setImageSummary(mCurrent.getIconId());
                     favoritLocWeather.setTemperature(mCurrent.mTemperature.getTemperature());
                     arrayListLocation.add(favoritLocWeather);
                     Log.e("LOG: ", "Arraylist loc size  = "+ arrayListLocation.size());
@@ -159,7 +157,12 @@ public class FavoriteLocationWeatherFragment extends Fragment {
             }
         }.execute();
 
+
     }
 
-
+//
+//    @Override
+//    public void setSityForecast(String sity) {
+//
+//    }
 }

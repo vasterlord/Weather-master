@@ -82,7 +82,8 @@ import ivanrudyk.com.open_weather_api.ui.fragment.FavoriteLocationWeatherFragmen
 import ivanrudyk.com.open_weather_api.ui.fragment.HourlyWeatherFragment;
 import ivanrudyk.com.open_weather_api.ui.fragment.NavigationDraverFragment;
 
-public class MainActivity extends AppCompatActivity implements MainView, NavigationDraverFragment.onSomeEventListenerDraver, View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements MainView, NavigationDraverFragment.onSomeEventListenerDraver,
+        View.OnClickListener {
 
 
     private Toolbar toolbar;
@@ -206,6 +207,12 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
                 .getSystemService(LOCATION_SERVICE);
         carentLOcationRefresh(locationManager);
     }
+
+//    @Override
+//    public void setSityForecast(String sity) {
+//        updateWeatherData(city, 0.0, 0.0, BASE_CURRENT_WEATHER_URL_CITY);
+//    }
+
     public class HeadActivityTask extends AsyncTask<Void, Void, Void> {
 
         @Override

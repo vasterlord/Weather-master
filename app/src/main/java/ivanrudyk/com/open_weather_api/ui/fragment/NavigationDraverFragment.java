@@ -41,7 +41,7 @@ import ivanrudyk.com.open_weather_api.presenter.fragment.NavigatonDraverPresente
 public class NavigationDraverFragment extends Fragment implements NavigationDraverView {
 
     public interface onSomeEventListenerDraver {
-        public void eventMapsOpen(String s);
+        void eventMapsOpen(String s);
 
         void eventChangeSity();
 
