@@ -70,6 +70,7 @@ import ivanrudyk.com.open_weather_api.helpers.JSONWeatherParser;
 import ivanrudyk.com.open_weather_api.helpers.RealmDbHelper;
 import ivanrudyk.com.open_weather_api.helpers.RemoteFetch;
 import ivanrudyk.com.open_weather_api.model.CurrentlyWeather;
+import ivanrudyk.com.open_weather_api.model.FavoriteLocationWeather;
 import ivanrudyk.com.open_weather_api.model.Forecast;
 import ivanrudyk.com.open_weather_api.model.ForecastTransction;
 import ivanrudyk.com.open_weather_api.model.ModelLocation;
@@ -230,6 +231,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     }
 
     private void ViewPager() {
+        firebaseHelper.retrivDataUser(uid);
         viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
@@ -238,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
                 } else if (position == 1) {
                     return dailyWeatherFragment;
                 }
- else if(position == 2){
+                else if(position == 2){
                 return favoriteLocationWeatherFragment;
                 }
                 else return null;
@@ -270,6 +272,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     private void updateWeatherData(final String tempCity, final double tempLat, final double tempLon, final String tempForecastUrl) {
         new Thread() {
                 public void run() {
+                    firebaseHelper.retrivDataUser(uid);
                 if (Helper.isNetworkAvailable(getApplicationContext())) {
                     final String[] forecastUrl = new String[3];
                     String apiKey = "ddec71381c5621cdddefb5c58581e5bc";
@@ -327,6 +330,11 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
                                 }
                                 ForecastTransction.setForecast(mForecast);
                                 storeObject(mForecast, getApplicationContext());
+                                try {
+                                    Thread.sleep(500);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -364,6 +372,8 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
                 }
             }
         }.start();
+        HeadActivityTask headActivityTask = new HeadActivityTask();
+        headActivityTask.execute();
     }
 
 
@@ -526,6 +536,9 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         users = dbHelper.retriveUserFromRealm(this);
         Log.e(TAG, "wwwwwwwwwwwwwwwwwwwwww" + users.getUserName());
         onCreareToolBar();
+        mt = new HeadActivityTask();
+        mt.execute();
+
         ibLogin.setOnClickListener(this);
         mCallbackManager = new CallbackManager.Factory().create();
         mRefreshImageView.setOnClickListener(this);
@@ -569,8 +582,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
             updateWeatherData(new CityPreference(MainActivity.this).getCity(), coord[0],
                     coord[1], new CityPreference(MainActivity.this).getNowURL());
         }
-        mt = new HeadActivityTask();
-        mt.execute();
+
     }
 
     @Override
@@ -657,7 +669,12 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         FirebaseHelper.modelUser = users;
+        if(FavoriteLocationWeather.listLocation.size()==0)
+        FavoriteLocationWeather.listLocation = FirebaseHelper.modelUser.getLocation().getLocation();
         onCreateNavigationDraver();
+        Log.e(TAG, "FirebaseHelper.modelUser size = " + FirebaseHelper.modelUser.getLocation().getLocation().size());
+        Log.e(TAG, "FavoriteLocationWeather.listLocation size = " + FavoriteLocationWeather.listLocation.size());
+
     }
 
     private void onCreateNavigationDraver() {
@@ -937,6 +954,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
             }
             mAuth = FirebaseAuth.getInstance();
             if (mAuth.getCurrentUser() != null) {
+                if(users.getUserName()==null)
                 presenter.loginFacebook(profile, mAuth.getCurrentUser().getUid(), getApplicationContext());
                 firebaseHelper.retrivDataUser(mAuth.getCurrentUser().getUid());
                 firebaseHelper.downloadPhotoStorage(mAuth.getCurrentUser().getUid());

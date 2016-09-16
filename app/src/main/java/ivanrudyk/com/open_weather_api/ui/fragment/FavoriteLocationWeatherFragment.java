@@ -20,7 +20,6 @@ import java.util.ArrayList;
 
 import ivanrudyk.com.open_weather_api.R;
 import ivanrudyk.com.open_weather_api.adapter.FavoritesLocationAdapterWeather;
-import ivanrudyk.com.open_weather_api.helpers.FirebaseHelper;
 import ivanrudyk.com.open_weather_api.helpers.JSONWeatherParser;
 import ivanrudyk.com.open_weather_api.helpers.RemoteFetch;
 import ivanrudyk.com.open_weather_api.model.CurrentlyWeather;
@@ -45,6 +44,7 @@ public class FavoriteLocationWeatherFragment extends Fragment {
 
 
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View favoriteLocationFragment = inflater.inflate(R.layout.fragment_favorite_location_weather, container, false);
@@ -54,36 +54,37 @@ public class FavoriteLocationWeatherFragment extends Fragment {
         favoriteLayout = (RelativeLayout) favoriteLocationFragment.findViewById(R.id.favorite_layuot);
         mEmptyTextView = (TextView) favoriteLocationFragment.findViewById(android.R.id.empty);
         mEmptyTextView.setVisibility(View.INVISIBLE);
-        Log.e("INTERNALLL: ", String.valueOf(FirebaseHelper.modelUser.getLocation().getLocation().size()));
+
         UpdateLocationWeather();
+
 
         return favoriteLocationFragment;
     }
 
 
     public void UpdateLocationWeather() {
-
-
-        new AsyncTask<Void, Void,Void>(){
+        new AsyncTask<Void, Void, Void>() {
 
             @Override
             protected Void doInBackground(Void... voids) {
                 do
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                while (FirebaseHelper.modelUser.getLocation().getLocation().size()==0);
+                    try {
+                        Thread.sleep(100);
+                        Log.e("INTERNALLL: ", String.valueOf(FavoriteLocationWeather.listLocation.size()));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                while (FavoriteLocationWeather.listLocation.size() == 0);
+
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
-                for (int i =0; i< FirebaseHelper.modelUser.getLocation().getLocation().size(); i++) {
-                    retriveWeatherData(FirebaseHelper.modelUser.getLocation().getLocation().get(i));
-                }
+//                for (int i =0; i< FirebaseHelper.modelUser.getLocation().getLocation().size(); i++) {
+//                    retriveWeatherData(FirebaseHelper.modelUser.getLocation().getLocation().get(i));
+//                }
 
                 return null;
             }
@@ -92,9 +93,9 @@ public class FavoriteLocationWeatherFragment extends Fragment {
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                for (int i =0; i< FirebaseHelper.modelUser.getLocation().getLocation().size(); i++) {
-                    retriveWeatherData(FirebaseHelper.modelUser.getLocation().getLocation().get(i));
-                }
+
+                retriveWeatherData(FavoriteLocationWeather.listLocation);
+
 
             }
         }.execute();
@@ -102,7 +103,7 @@ public class FavoriteLocationWeatherFragment extends Fragment {
 
     }
 
-    private void setAdapter() {
+    private void setAdapter(ArrayList<FavoriteLocationWeather> arrayListLocation) {
 //        for (int i = 0; i<10 ; i++){
 //            favoritLocWeather.setCity("dbn");
 //            favoritLocWeather.setSummary("gnazb");
@@ -111,53 +112,58 @@ public class FavoriteLocationWeatherFragment extends Fragment {
 //        }
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         resV.setLayoutManager(layoutManager);
-        favoriteAdapter = new FavoritesLocationAdapterWeather(getContext(), this.arrayListLocation);
+        favoriteAdapter = new FavoritesLocationAdapterWeather(getContext(), arrayListLocation);
         resV.setAdapter(favoriteAdapter);
         Log.e("INTERNALLL: ", "Set Adapter favorite");
         Log.e("INTERNALLL: ", String.valueOf(arrayListLocation.size()));
         resV.setHasFixedSize(true);
     }
 
-    private void retriveWeatherData(final String city) {
-        new AsyncTask<Void, Void, Void>() {
+    private void retriveWeatherData(final ArrayList<String> city) {
+        arrayListLocation.clear();
+        new AsyncTask<Void, String, Void>() {
+
             @Override
             protected Void doInBackground(Void... voids) {
-                try {
-                    forecastUrl = RemoteFetch.getCurrent(getContext(), (new URL(String.format(WeatherUrl.BASE_CURRENT_WEATHER_URL_CITY, city, apiKey))));
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
-                if (forecastUrl == null ) {
-
-                } else if (forecastUrl != null ) {
+                for (int i = 0; i < FavoriteLocationWeather.listLocation.size(); i++) {
                     try {
-                        mCurrent = JSONWeatherParser.getWeather(forecastUrl);
-                        Log.e("CURRR", forecastUrl);
-                    } catch (JSONException e) {
+                        forecastUrl = RemoteFetch.getCurrent(getContext(), (new URL(String.format(WeatherUrl.BASE_CURRENT_WEATHER_URL_CITY, city.get(i), apiKey))));
+                    } catch (MalformedURLException e) {
                         e.printStackTrace();
                     }
+                    if (forecastUrl == null) {
+
+                    } else if (forecastUrl != null) {
+                        try {
+                            mCurrent = JSONWeatherParser.getWeather(forecastUrl);
+                            Log.e("CURRR", forecastUrl);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    FavoriteLocationWeather favoritLocWeather = new FavoriteLocationWeather();
+                    favoritLocWeather.setCity(mCurrent.mLocationCurrentWeather.getCity());
+                    favoritLocWeather.setSummary(mCurrent.mCurrentCondition.getDescription());
+                    favoritLocWeather.setTemperature(mCurrent.mTemperature.getTemperature());
+                    arrayListLocation.add(favoritLocWeather);
+                    Log.e("LOG: ", "Arraylist loc size  = "+ arrayListLocation.size());
                 }
                 try {
-                    Thread.sleep(200);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 return null;
             }
+
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                FavoriteLocationWeather favoritLocWeather = new FavoriteLocationWeather();
-                favoritLocWeather.setCity(mCurrent.mCurrentCondition.getCondition());
-                favoritLocWeather.setSummary(mCurrent.mCurrentCondition.getDescription());
-                favoritLocWeather.setTemperature(mCurrent.mTemperature.getTemperature());
-                arrayListLocation.add(favoritLocWeather);
-                setAdapter();
+                setAdapter(arrayListLocation);
             }
         }.execute();
 
     }
-
 
 
 }
