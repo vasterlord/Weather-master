@@ -125,7 +125,11 @@ public class FavoriteLocationWeatherFragment extends Fragment {
 
             @Override
             protected Void doInBackground(Void... voids) {
-                for (int i = 0; i < FavoriteLocationWeather.listLocation.size(); i++) {
+                int j =0;
+                if (FavoriteLocationWeather.listLocation.get(0).equals("")){
+                    j++;
+                }
+                for (int i = j; i < FavoriteLocationWeather.listLocation.size(); i++) {
                     try {
                         forecastUrl = RemoteFetch.getCurrent(getContext(), (new URL(String.format(WeatherUrl.BASE_CURRENT_WEATHER_URL_CITY, city.get(i), apiKey))));
                     } catch (MalformedURLException e) {
