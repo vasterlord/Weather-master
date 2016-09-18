@@ -126,7 +126,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         int result1 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         if ((locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) && (result1 == PackageManager.PERMISSION_GRANTED)) {
             coord = mHelper.CoordTracker(getApplicationContext());
-            latLng = new LatLng(coord[0], coord[0]);
+            latLng = new LatLng(coord[0], coord[1]);
             mMap.addMarker(new MarkerOptions().position(latLng).title("Your current position").
                     draggable(true)
                     .flat(true).icon(

@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         else if (!Helper.isNetworkAvailable(getApplicationContext()))
         {
             Toast.makeText(MainActivity.this,
-                    "No internet connection. Go to settings and turn on internet.",
+                    "No internet connection. Go to settings and turn on internet",
                     Toast.LENGTH_LONG).show();
         }
     }
@@ -285,8 +285,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
                 if (Helper.isNetworkAvailable(getApplicationContext())) {
                     final String[] forecastUrl = new String[3];
                     String apiKey = "ddec71381c5621cdddefb5c58581e5bc";
-                    Log.e("INTERNALLL: ", tempCity);
-                    Log.e("INTERNALLLL toooooo : ", tempForecastUrl);
                     if (tempForecastUrl == BASE_CURRENT_WEATHER_URL_CITY) {
                         try {
                             forecastUrl[0] = RemoteFetch.getCurrent(getApplicationContext(), (new URL(String.format(BASE_CURRENT_WEATHER_URL_CITY, tempCity, apiKey))));
@@ -304,7 +302,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
                             e.printStackTrace();
                         }
                     }
-                    Log.e("INTERNAL yetttttttttt: ", tempForecastUrl);
                     if ((forecastUrl[0] == null) && (Helper.isNetworkAvailable(getApplicationContext()))) {
                         handler.post(new Runnable() {
                             public void run() {
@@ -319,21 +316,18 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
 
                                 try {
                                     mForecast.setCurrent(JSONWeatherParser.getWeather(forecastUrl[0]));
-                                    Log.e("CURRR", forecastUrl[0]);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
 
                                 try {
                                     mForecast.setDailyForecast(JSONWeatherParser.getDailyForecast(forecastUrl[1]));
-                                    Log.e("DAYYYYYY", forecastUrl[1]);
 
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
                                 try {
                                     mForecast.setHourlyForecast(JSONWeatherParser.getHourlyForecast(forecastUrl[2]));
-                                    Log.e("HOURRRRR", forecastUrl[2]);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
@@ -363,16 +357,16 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
                                 Toast.makeText(MainActivity.this,
                                         getApplicationContext().getString(R.string.no_internet_connetion),
                                         Toast.LENGTH_LONG).show();
-                                Log.e("updNul: ", "updNul");
                                 ForecastTransction.setForecast(getObject(getApplicationContext()));
                             } else {
                                 mForecast = getObject(getApplicationContext());
                                 updateDisplay();
                                 ForecastTransction.setForecast(mForecast);
+                                HeadActivityTask headActivityTask2 = new HeadActivityTask();
+                                headActivityTask2.execute();
                                 Toast.makeText(MainActivity.this,
                                         getApplicationContext().getString(R.string.no_internet_connetion),
                                         Toast.LENGTH_LONG).show();
-                                Log.e("updNoNul: ", "updNoNul");
                             }
                         }
                     });
@@ -467,8 +461,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         currentTemperatureField = (TextView) findViewById(R.id.current_temperature_field);
         descriptonField = (TextView) findViewById(R.id.decription_field);
         iconView = (ImageView) findViewById(R.id.icon_Image);
-        Log.e("TESTING", "Lat = : " + coord[0]);
-        Log.e("TESTING", "Lon = " + coord[1]);
         ibLogin = (ImageButton) findViewById(R.id.ibLogin);
     }
 
@@ -532,16 +524,29 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         iconView = (ImageView) findViewById(R.id.icon_Image);
         mEmptyTextView = (TextView) findViewById(R.id.tvEmpty);
         mEmptyTextView.setVisibility(View.INVISIBLE);
-        Log.e("TESTTTTT: ", new CityPreference(MainActivity.this).getCity());
-        Log.e("TESTTTTT toooo : ", new CityPreference(MainActivity.this).getNowURL());
-        Log.e("corddddddddd : ", coord[0] + "  " + coord[1]);
         mRefreshImageView.setVisibility(View.VISIBLE);
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
         viewPager = (ViewPager) findViewById(R.id.pager);
         locationManager = (LocationManager) getApplication()
                 .getSystemService(LOCATION_SERVICE);
         result = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-        if (result == PackageManager.PERMISSION_GRANTED) {
+        if (!Helper.isNetworkAvailable(getApplicationContext())&&getObject(getApplicationContext()) == null) {
+            mEmptyTextView.setVisibility(View.VISIBLE);
+            Toast.makeText(MainActivity.this,
+                    getApplicationContext().getString(R.string.no_internet_connetion),
+                    Toast.LENGTH_LONG).show();
+            ForecastTransction.setForecast(getObject(getApplicationContext()));
+        } else if(!Helper.isNetworkAvailable(getApplicationContext())&&getObject(getApplicationContext()) != null){
+            mForecast = getObject(getApplicationContext());
+            updateDisplay();
+            ForecastTransction.setForecast(mForecast);
+            HeadActivityTask headActivityTask2 = new HeadActivityTask();
+            headActivityTask2.execute();
+            Toast.makeText(MainActivity.this,
+                    getApplicationContext().getString(R.string.no_internet_connetion),
+                    Toast.LENGTH_LONG).show();
+        }
+        else if (result == PackageManager.PERMISSION_GRANTED) {
             CheckUpdate(locationManager);
         }
         else {
