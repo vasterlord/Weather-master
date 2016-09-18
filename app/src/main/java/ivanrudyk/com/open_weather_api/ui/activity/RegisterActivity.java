@@ -156,6 +156,7 @@ public class RegisterActivity extends AppCompatActivity implements RegisterView,
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d("TAG", "createUserWithEmail:onComplete:" + task.isSuccessful());
                         if (!task.isSuccessful()) {
+                            progressBarRegister.setVisibility(View.INVISIBLE);
                             Toast.makeText(getApplicationContext(), "Register failed", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -258,8 +259,8 @@ public class RegisterActivity extends AppCompatActivity implements RegisterView,
     }
 
     @Override
-    public void setPasswordError() {
-        etPasswordRegister.setError(getString(R.string.password_error));
+    public void setPasswordError(String s) {
+        etPasswordRegister.setError(s);
     }
 
     @Override
