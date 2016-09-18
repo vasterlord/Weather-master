@@ -1,12 +1,16 @@
 package ivanrudyk.com.open_weather_api.ui.activity;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -47,7 +51,8 @@ public class RegisterActivity extends AppCompatActivity implements RegisterView,
     EditText etLoginRegister, etPasswordRegister, etUserName, etCity, etConfirmPassword;
     ImageView ivCamera, ivGalary, ivOkRegister, ivCancelRegister, ivRegisterPhotoUser;
     ProgressBar progressBarRegister;
-
+    int result , result2;
+    private static final int PERMISSION_REQUEST_CODE = 1;
     CameraPhoto cameraPhoto;
     private final int CAMERA_REQUEST = 13323;
     private Bitmap photoLoad;
@@ -177,15 +182,31 @@ public class RegisterActivity extends AppCompatActivity implements RegisterView,
                 break;
             case R.id.iv_camera:
                 try {
-                    startActivityForResult(cameraPhoto.takePhotoIntent(), CAMERA_REQUEST);
-                    cameraPhoto.addToGallery();
+                    result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                    result2 = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+                   // if ((result == PackageManager.PERMISSION_GRANTED) && (result2 == PackageManager.PERMISSION_GRANTED)) {
+                       startActivityForResult(cameraPhoto.takePhotoIntent(), CAMERA_REQUEST);
+                        cameraPhoto.addToGallery();
+//                    }
+//                    else {
+//                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},PERMISSION_REQUEST_CODE);
+//                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},PERMISSION_REQUEST_CODE);
+//                    }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
                 break;
             case R.id.iv_galery:
-                startActivityForResult(galleryPhoto.openGalleryIntent(), GALLERY_REQEST);
+                result = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+                if (result == PackageManager.PERMISSION_GRANTED) {
+                    startActivityForResult(galleryPhoto.openGalleryIntent(), GALLERY_REQEST);
+                }
+                else {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},PERMISSION_REQUEST_CODE);
+                }
+
                 break;
             case R.id.iv_cancel_register:
                 NavUtils.navigateUpFromSameTask(RegisterActivity.this);

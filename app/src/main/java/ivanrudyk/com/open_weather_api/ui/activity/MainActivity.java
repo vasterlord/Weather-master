@@ -1,10 +1,10 @@
 package ivanrudyk.com.open_weather_api.ui.activity;
 
-import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
@@ -111,7 +111,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     private Dialog d;
     private FirebaseHelper firebaseHelper = new FirebaseHelper();
     private CallbackManager mCallbackManager;
-    private Boolean stopValue = false;
     //-------------------------------------------------------------------------------------------------------------------
     private static String BASE_DAILY_FORECAST_URL_CITY = "http://api.openweathermap.org/data/2.5/forecast/daily?mode=json&q=%s&units=metric&APPId=%s";
     private static String BASE_DAILY_FORECAST_URL_COORD = "http://api.openweathermap.org/data/2.5/forecast/daily?mode=json&lat=%s&lon=%s&units=metric&APPId=%s";
@@ -131,6 +130,9 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     private FacebookCallback<LoginResult> mCallback = new FacebookCallback<LoginResult>() {
         @Override
         public void onSuccess(LoginResult loginResult) {
+//                AccessToken accessToken = loginResult.getAccessToken();
+//                handleFacebookAccessToken(loginResult.getAccessToken());
+//                Log.e(TAG, "SsssssignInnn");
             mAuth.signOut();
             dbHelper.deleteUserFromRealm(getApplicationContext());
         }
@@ -238,9 +240,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-           if(!stopValue) {
-                ViewPager();
-           }
+            ViewPager();
         }
     }
 
@@ -476,8 +476,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         Realm.setDefaultConfiguration(realmConfiguration);
         mAuth = FirebaseAuth.getInstance();
         profile = Profile.getCurrentProfile();
-        stopValue = false;
-
+        setTitle("");
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -502,7 +501,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         onCreareToolBar();
         mt = new HeadActivityTask();
         mt.execute();
-        presenter.setFavoriteLocatinOnMainWindow();
+
         ibLogin.setOnClickListener(this);
         mCallbackManager = new CallbackManager.Factory().create();
         mRefreshImageView.setOnClickListener(this);
@@ -630,7 +629,6 @@ else if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
 
     @Override
     protected void onStart() {
-        stopValue = false;
         super.onStart();
         setVisibleLoginItem();
         mAuth.addAuthStateListener(mAuthListener);
@@ -659,7 +657,6 @@ else if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
     @Override
     protected void onPause() {
         super.onPause();
-        stopValue = true;
         RealmDbHelper dbHelper = new RealmDbHelper();
         ModelUser u = new ModelUser();
         u = dbHelper.retriveUserFromRealm(this);
@@ -676,7 +673,6 @@ else if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
     @Override
     public void onStop() {
         super.onStop();
-        stopValue = true;
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
@@ -725,9 +721,7 @@ else if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
     private void onCreateNavigationDraver() {
         NavigationDraverFragment draverFragment = (NavigationDraverFragment)
                 getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_draver);
-        if (!stopValue) {
-            draverFragment.setUp(R.id.fragment_navigation_draver, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar, users, uid);
-        }
+        draverFragment.setUp(R.id.fragment_navigation_draver, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar, users, uid);
     }
 
     @Override
@@ -759,12 +753,13 @@ else if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
               }
           }
         }
-      else if (item.getItemId() == R.id.refresh) {
-
+      else if (item.getItemId() == R.id.settings) {
+//           Intent intent = new Intent(this, MySettingsActivity.class);
+//           startActivity(intent);
       }
         return false;
     }
-
+///////////////////////////////////////////dddddddddddddddddddddddddddddddddddddddd
     private void carentLOcationRefresh(LocationManager locationManager) {
        int result1 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         if ((locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) && (result1 == PackageManager.PERMISSION_GRANTED)) {
@@ -965,7 +960,6 @@ else if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
     public void setFavoriteLocatinActivity(int position) {
         updateWeatherData(FavoriteLocationWeather.listLocation.get(position), 0.0, 0.0, BASE_CURRENT_WEATHER_URL_CITY);
     }
-
 
     private void setVisibleLoginItem() {
         if (users.getUserName() == null) {

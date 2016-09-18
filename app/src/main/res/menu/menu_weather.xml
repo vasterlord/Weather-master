@@ -10,7 +10,7 @@ tools:context=".ui.activity.MainActivity">
     <item
         android:id="@+id/settings"
         android:orderInCategory="1"
-        android:title="Refresh"
+        android:title="Settings"
         app:showAsAction="never"/>
 <item
     android:id="@+id/exit"
