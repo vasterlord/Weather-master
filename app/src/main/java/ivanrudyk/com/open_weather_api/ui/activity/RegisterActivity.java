@@ -201,7 +201,7 @@ public class RegisterActivity extends AppCompatActivity implements RegisterView,
                 }
                 else {
                     ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},PERMISSION_REQUEST_CODE);
-                }
+                }//////gj
                 break;
             case R.id.iv_cancel_register:
                 NavUtils.navigateUpFromSameTask(RegisterActivity.this);
