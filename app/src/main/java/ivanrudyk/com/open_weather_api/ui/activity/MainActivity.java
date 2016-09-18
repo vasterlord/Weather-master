@@ -4,6 +4,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -12,8 +14,10 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
@@ -182,11 +186,22 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     private final DailyWeatherFragment dailyWeatherFragment = new DailyWeatherFragment();
     private final FavoriteLocationWeatherFragment favoriteLocationWeatherFragment = new FavoriteLocationWeatherFragment();
     HeadActivityTask mt;
+    int result;
+    private static final int PERMISSION_REQUEST_CODE = 1;
 
     @Override
     public void eventMapsOpen(String s) {
+        if (Helper.isNetworkAvailable(getApplicationContext()))
+        {
         Intent intent = new Intent(this, MapsActivity.class);
         startActivity(intent);
+        }
+        else if (!Helper.isNetworkAvailable(getApplicationContext()))
+        {
+            Toast.makeText(MainActivity.this,
+                    "No internet connection. Go to settings and turn on internet.",
+                    Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -263,12 +278,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         tabLayout.setupWithViewPager(viewPager);
     }
     //-------------------------------------------------------------------------------------------------------------------
-    //-------------------------------------------------------------------------------------------------------------------
-    //-------------------------------------------------------------------------------------------------------------------
-    //-------------------------------------------------------------------------------------------------------------------
-
-
-
     private void updateWeatherData(final String tempCity, final double tempLat, final double tempLon, final String tempForecastUrl) {
         new Thread() {
                 public void run() {
@@ -374,43 +383,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         }.start();
         HeadActivityTask headActivityTask = new HeadActivityTask();
         headActivityTask.execute();
-    }
-
-
-
-    public void toggleRefresh() {
-        final LocationManager locationManager = (LocationManager) getApplication()
-                .getSystemService(LOCATION_SERVICE);
-        if (mProgressBar.getVisibility() == View.INVISIBLE) {
-            mProgressBar.setVisibility(View.VISIBLE);
-            mRefreshImageView.setVisibility(View.INVISIBLE);
-            new AsyncTask<Void, Void, Void>() {
-                @Override
-                protected Void doInBackground(Void... voids) {
-                    if ((nowURL == BASE_CURRENT_WEATHER_URL_COORD) && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                        coord = mHelper.CoordTracker(getApplicationContext());
-                        updateWeatherData(city, coord[0], coord[1], nowURL);
-                        new CityPreference(MainActivity.this).setLat(coord[0]);
-                        new CityPreference(MainActivity.this).setLon(coord[1]);
-                    } else {
-                        //do nothing
-                    }
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    return null;
-                }
-
-                @Override
-                protected void onPostExecute(Void aVoid) {
-                    super.onPostExecute(aVoid);
-                    mProgressBar.setVisibility(View.INVISIBLE);
-                    mRefreshImageView.setVisibility(View.VISIBLE);
-                }
-            };
-        }
     }
 
     protected void updateDisplay() {
@@ -531,7 +503,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
             }
         };
         inithializeComponent();
-        toggleRefresh();
         presenter = new MainPresenterImplement(this);
         users = dbHelper.retriveUserFromRealm(this);
         Log.e(TAG, "wwwwwwwwwwwwwwwwwwwwww" + users.getUserName());
@@ -563,30 +534,94 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         mEmptyTextView.setVisibility(View.INVISIBLE);
         Log.e("TESTTTTT: ", new CityPreference(MainActivity.this).getCity());
         Log.e("TESTTTTT toooo : ", new CityPreference(MainActivity.this).getNowURL());
-        coord = mHelper.CoordTracker(getApplicationContext());
         Log.e("corddddddddd : ", coord[0] + "  " + coord[1]);
-        updateWeatherData(new CityPreference(MainActivity.this).getCity(), new CityPreference(MainActivity.this).getLat(),
-                new CityPreference(MainActivity.this).getLon(), new CityPreference(MainActivity.this).getNowURL());
         mRefreshImageView.setVisibility(View.VISIBLE);
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
         viewPager = (ViewPager) findViewById(R.id.pager);
         locationManager = (LocationManager) getApplication()
                 .getSystemService(LOCATION_SERVICE);
-        ;
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            if (coord[0] == 0) {
-
-                showSettingsAlert();
-            }
-        } else {
-            updateWeatherData(new CityPreference(MainActivity.this).getCity(), coord[0],
-                    coord[1], new CityPreference(MainActivity.this).getNowURL());
+        result = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        if (result == PackageManager.PERMISSION_GRANTED) {
+            CheckUpdate(locationManager);
         }
+        else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},PERMISSION_REQUEST_CODE);
+        }
+    }
 
+    private void CheckUpdate(LocationManager locationManager) {
+        if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+        {
+            coord = mHelper.CoordTracker(getApplicationContext());
+    updateWeatherData(new CityPreference(MainActivity.this).getCity(), coord[0],
+            coord[1], new CityPreference(MainActivity.this).getNowURL());
+            new CityPreference(MainActivity.this).setLat(coord[0]);
+            new CityPreference(MainActivity.this).setLon(coord[1]);
+        }
+else if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+
+    if((new CityPreference(MainActivity.this).getLat() == 0.0) &&
+            (new CityPreference(MainActivity.this).getLon() == 0.0))
+    {
+        mEmptyTextView.setVisibility(View.VISIBLE);
+    }
+    else if((new CityPreference(MainActivity.this).getLat() != 0.0) &&
+            (new CityPreference(MainActivity.this).getLon() != 0.0))
+    {
+        updateWeatherData(new CityPreference(MainActivity.this).getCity(), new CityPreference(MainActivity.this).getLat(),
+                new CityPreference(MainActivity.this).getLon(), new CityPreference(MainActivity.this).getNowURL());
+    }
+        showSettingsAlert();
+}
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    LocationManager locationManager = (LocationManager) getApplication()
+                        .getSystemService(LOCATION_SERVICE);
+                    if((new CityPreference(MainActivity.this).getLat() == 0.0) &&
+                            (new CityPreference(MainActivity.this).getLon() == 0.0))
+                    {
+                        mEmptyTextView.setVisibility(View.VISIBLE);
+                    }
+                    else if((new CityPreference(MainActivity.this).getLat() != 0.0) &&
+                            (new CityPreference(MainActivity.this).getLon() != 0.0))
+                    {
+                        updateWeatherData(new CityPreference(MainActivity.this).getCity(), new CityPreference(MainActivity.this).getLat(),
+                                new CityPreference(MainActivity.this).getLon(), new CityPreference(MainActivity.this).getNowURL());
+                    }
+                    if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) == false)
+                    {
+                        showSettingsAlert();
+                    }
+                } else {
+                    if((new CityPreference(MainActivity.this).getLat() == 0.0) &&
+                            (new CityPreference(MainActivity.this).getLon() == 0.0))
+                    {
+                        mEmptyTextView.setVisibility(View.VISIBLE);
+                        Toast.makeText(MainActivity.this,
+                            "Permission Denied, You cannot access location data",
+                            Toast.LENGTH_LONG).show();
+                    }
+                    else if((new CityPreference(MainActivity.this).getLat() != 0.0) &&
+                            (new CityPreference(MainActivity.this).getLon() != 0.0))
+                    {
+                        updateWeatherData(new CityPreference(MainActivity.this).getCity(), new CityPreference(MainActivity.this).getLat(),
+                                new CityPreference(MainActivity.this).getLon(), new CityPreference(MainActivity.this).getNowURL());
+                        Toast.makeText(MainActivity.this,
+                                "Last saved weather data",
+                                Toast.LENGTH_LONG).show();
+                    }
 
+                }
+                break;
+        }
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         setVisibleLoginItem();
@@ -693,37 +728,34 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     public boolean onOptionsItemSelected(MenuItem item) {
         LocationManager locationManager = (LocationManager) getApplication()
                 .getSystemService(LOCATION_SERVICE);
-        if (item.getItemId() == R.id.change_city) {
-            if (!Helper.isNetworkAvailable(getApplicationContext())) {
-                Toast.makeText(MainActivity.this,
-                        getApplicationContext().getString(R.string.no_internet_connetion),
-                        Toast.LENGTH_LONG).show();
-            } else if (Helper.isNetworkAvailable(getApplicationContext())) {
-                showInputDialog();
-            }
-        } else if (item.getItemId() == R.id.current_location) {
-            carentLOcationRefresh(locationManager);
-        } else if (item.getItemId() == R.id.exit) {
+        HeadActivityTask headActivityTask2 = new HeadActivityTask();
+      if (item.getItemId() == R.id.exit) {
             finish();
-        } else if (item.getItemId() == R.id.refresh) {
-            if ((nowURL == BASE_CURRENT_WEATHER_URL_COORD) && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                coord = mHelper.CoordTracker(getApplicationContext());
-                updateWeatherData(city, coord[0], coord[1], nowURL);
-                new CityPreference(this).setLat(coord[0]);
-                new CityPreference(this).setLon(coord[1]);
-            } else {
-                //do nothing
-            }
         }
+      else if (item.getItemId() == R.id.refresh) {
+          int result1 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+          if ((locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) && (result1 == PackageManager.PERMISSION_GRANTED)) {
+              if ((nowURL == BASE_CURRENT_WEATHER_URL_COORD)) {
+                  coord = mHelper.CoordTracker(getApplicationContext());
+                  updateWeatherData(city, coord[0], coord[1], nowURL);
+                  new CityPreference(this).setLat(coord[0]);
+                  new CityPreference(this).setLon(coord[1]);
+                  headActivityTask2.execute();
+              } else if ((nowURL == BASE_CURRENT_WEATHER_URL_CITY)) {
+                  updateWeatherData(city, coord[0], coord[1], nowURL);
+                  headActivityTask2.execute();
+              }
+          }
+        }
+      else if (item.getItemId() == R.id.refresh) {
+
+      }
         return false;
     }
 
     private void carentLOcationRefresh(LocationManager locationManager) {
-        if (!Helper.isNetworkAvailable(getApplicationContext())) {
-            Toast.makeText(MainActivity.this,
-                    getApplicationContext().getString(R.string.no_internet_connetion),
-                    Toast.LENGTH_LONG).show();
-        } else if (Helper.isNetworkAvailable(getApplicationContext()) && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+       int result1 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        if ((locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) && (result1 == PackageManager.PERMISSION_GRANTED)) {
             nowURL = BASE_CURRENT_WEATHER_URL_COORD;
             coord = mHelper.CoordTracker(getApplicationContext());
             Log.e("locccccccc : ", coord[0] + " " + coord[1]);
@@ -808,13 +840,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
                 } else {
                     showDialogLogin();
                 }
-                break;
-            case R.id.currentLoc:
-                break;
-            case R.id.refreshImageView:
-                toggleRefresh();
-                break;
-            case R.id.cityLoc:
                 break;
             default:
                 break;

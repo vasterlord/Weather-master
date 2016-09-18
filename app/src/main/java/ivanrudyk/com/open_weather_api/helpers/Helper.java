@@ -34,29 +34,7 @@ public class Helper {
         if(gps.canGetLocation()) {
             coord[0] = gps.getLatitude();
             coord[1] = gps.getLongitude();
-            Log.e("Tloooooooooc : " , gps.canGetLocation() + "");
-            Log.e("gpscorrdd : " , coord[0] + "  " + coord[1]);
-        } else {
-//            gps.showSettingsAlert();
-            Log.e("Tloooooooooc : " , gps.canGetLocation() + "");
         }
         return coord;
-    }
-    public void toggleRefresh(ProgressBar mProgressBar , ImageView mRefreshImageView) {
-        if (mProgressBar.getVisibility() == View.INVISIBLE) {
-            mProgressBar.setVisibility(View.VISIBLE);
-            mRefreshImageView.setVisibility(View.INVISIBLE);
-            new AsyncTask<Void, Void, Void>(){
-                @Override
-                protected Void doInBackground(Void... voids) {
-
-                    return null;
-                }
-            };
-        }
-        else {
-            mProgressBar.setVisibility(View.INVISIBLE);
-            mRefreshImageView.setVisibility(View.VISIBLE);
-        }
     }
 }

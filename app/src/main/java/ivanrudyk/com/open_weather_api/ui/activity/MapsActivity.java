@@ -1,11 +1,39 @@
 package ivanrudyk.com.open_weather_api.ui.activity;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentActivity;
+import android.os.Bundle;
+
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import ivanrudyk.com.open_weather_api.R;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -27,6 +55,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
 
+import android.app.Activity;
+
 import ivanrudyk.com.open_weather_api.R;
 import ivanrudyk.com.open_weather_api.helpers.AlertDialogFragment;
 import ivanrudyk.com.open_weather_api.helpers.Helper;
@@ -36,16 +66,16 @@ import ivanrudyk.com.open_weather_api.model.CurrentlyWeather;
 import ivanrudyk.com.open_weather_api.model.Forecast;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+
     private GoogleMap mMap;
     private UiSettings mUiSettings;
-    private Helper mHelperMaps = new Helper();
-    private double [] coord = new double[] {0.0 , 0.0};
+    private double[] coord = new double[]{0.0, 0.0};
     Handler handlerMaps;
     private Forecast mForecastMaps = new Forecast();
-    private String BASE_CURRENT_WEATHER_URL_COORD=  "http://api.openweathermap.org/data/2.5/weather?lat=%s&lon=%s&units=metric&APPId=%s";
+    private String BASE_CURRENT_WEATHER_URL_COORD = "http://api.openweathermap.org/data/2.5/weather?lat=%s&lon=%s&units=metric&APPId=%s";
     private String BASE_DAILY_FORECAST_URL_COORD = "http://api.openweathermap.org/data/2.5/forecast/daily?mode=json&lat=%s&lon=%s&units=metric&APPId=%s";
     private String BASE_HOURLY_FORECAST_URL_COORD = "http://api.openweathermap.org/data/2.5/forecast/hourly?mode=json&lat=%s&lon=%s&units=metric&APPId=%s";
-    private  final int DIALOG = 1;
+    private final int DIALOG = 1;
     double latitude;
     double longitude;
     Drawable drawable;
@@ -56,8 +86,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     TextView currentTemperatureField;
     TextView descriptonField;
     ImageView iconView;
-
-    public MapsActivity() {handlerMaps = new Handler();}
+    private GoogleApiClient client;
+    Helper mHelper = new Helper();
+    LatLng latLng;
+    public MapsActivity() {
+        handlerMaps = new Handler();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,12 +100,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        coord = mHelperMaps.CoordTracker(getApplicationContext());
+
+
         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
         mUiSettings = mMap.getUiSettings();
@@ -85,15 +121,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mUiSettings.setMyLocationButtonEnabled(true);
         mUiSettings.isMyLocationButtonEnabled();
         mUiSettings.isTiltGesturesEnabled();
-        LatLng latLng = new LatLng(-49, 47);
-        mMap.addMarker(new MarkerOptions().position(latLng).title("Your current position").
-                draggable(true)
-                .flat(true).icon(
-                        BitmapDescriptorFactory
-                                .defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-                .snippet(" Press any location on the map and get current weather there")
-        );
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        LocationManager locationManager = (LocationManager) getApplication()
+                .getSystemService(LOCATION_SERVICE);
+        int result1 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        if ((locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) && (result1 == PackageManager.PERMISSION_GRANTED)) {
+            coord = mHelper.CoordTracker(getApplicationContext());
+            latLng = new LatLng(coord[0], coord[0]);
+            mMap.addMarker(new MarkerOptions().position(latLng).title("Your current position").
+                    draggable(true)
+                    .flat(true).icon(
+                            BitmapDescriptorFactory
+                                    .defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                    .snippet(" Press any location on the map and get current weather there")
+            );
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            mMap.setMyLocationEnabled(true);
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        }
+
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 
             @Override
@@ -103,13 +150,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 showDialog(DIALOG);
             }
         });
+
     }
 
     @Override
     protected Dialog onCreateDialog(int id) {
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(MapsActivity.this);
         mView = (RelativeLayout) getLayoutInflater()
-                .inflate(R.layout.activity_maps, null, false);
+                .inflate(R.layout.map_weather, null, false);
         mBuilder.setView(mView);
         mBuilder.setTitle("Current weather in this place : ")
                 .setPositiveButton(MapsActivity.this.getString(R.string.error_ok_button_text), null);
@@ -119,15 +167,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onPrepareDialog(int id, Dialog dialog) {
         super.onPrepareDialog(id, dialog);
-        if (id == DIALOG)
-        {
+        if (id == DIALOG) {
             cityField = (TextView) dialog.getWindow().findViewById(R.id.city_field);
             updatedField = (TextView) dialog.getWindow().findViewById(R.id.updated_field);
             detailsField = (TextView) dialog.getWindow().findViewById(R.id.details_field);
-            currentTemperatureField = (TextView)  dialog.getWindow().findViewById(R.id.current_temperature_field);
+            currentTemperatureField = (TextView) dialog.getWindow().findViewById(R.id.current_temperature_field);
             descriptonField = (TextView) dialog.getWindow().findViewById(R.id.decription_field);
-            iconView = (ImageView)  dialog.getWindow().findViewById(R.id.icon_Image);
-            updateWeatherMapsData(latitude,longitude);
+            iconView = (ImageView) dialog.getWindow().findViewById(R.id.icon_Image);
+            updateWeatherMapsData(latitude, longitude);
         }
     }
 
@@ -149,11 +196,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         iconView.setImageDrawable(drawable);
     }
 
-    private void updateWeatherMapsData(final double tempLat, final double tempLon){
-        new Thread(){
-            public void run(){
-                if(Helper.isNetworkAvailable(getApplicationContext())){
-                    final String [] forecastUrl = new String[3];
+    private void updateWeatherMapsData(final double tempLat, final double tempLon) {
+        new Thread() {
+            public void run() {
+                if (Helper.isNetworkAvailable(getApplicationContext())) {
+                    final String[] forecastUrl = new String[3];
                     String apiKey = "ddec71381c5621cdddefb5c58581e5bc";
                     try {
                         forecastUrl[0] = RemoteFetch.getCurrent(getApplicationContext(), (new URL(String.format(BASE_CURRENT_WEATHER_URL_COORD, tempLat, tempLon, apiKey))));
@@ -163,18 +210,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         e.printStackTrace();
                     }
 
-                    if((forecastUrl[0] == null) && (Helper.isNetworkAvailable(getApplicationContext()))){
-                        handlerMaps.post(new Runnable(){
-                            public void run(){
+                    if ((forecastUrl[0] == null) && (Helper.isNetworkAvailable(getApplicationContext()))) {
+                        handlerMaps.post(new Runnable() {
+                            public void run() {
                                 Toast.makeText(MapsActivity.this,
                                         getApplicationContext().getString(R.string.place_not_found),
                                         Toast.LENGTH_LONG).show();
                             }
                         });
-                    }
-                    else if((forecastUrl[0] != null) && (Helper.isNetworkAvailable(getApplicationContext()))) {
-                        handlerMaps.post(new Runnable(){
-                            public void run(){
+                    } else if ((forecastUrl[0] != null) && (Helper.isNetworkAvailable(getApplicationContext()))) {
+                        handlerMaps.post(new Runnable() {
+                            public void run() {
 
                                 try {
                                     mForecastMaps.setCurrent(JSONWeatherParser.getWeather(forecastUrl[0]));
@@ -184,15 +230,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 }
 
                                 try {
-                                    mForecastMaps.setDailyForecast(JSONWeatherParser.getDailyForecast( forecastUrl[1]));
-                                    Log.e("DAYYYYYY",  forecastUrl[1]);
+                                    mForecastMaps.setDailyForecast(JSONWeatherParser.getDailyForecast(forecastUrl[1]));
+                                    Log.e("DAYYYYYY", forecastUrl[1]);
 
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
                                 try {
                                     mForecastMaps.setHourlyForecast(JSONWeatherParser.getHourlyForecast(forecastUrl[2]));
-                                    Log.e("HOURRRRR",  forecastUrl[2]);
+                                    Log.e("HOURRRRR", forecastUrl[2]);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
@@ -204,31 +250,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 });
                             }
                         });
-                    }
-                    else {
+                    } else {
                         alertUserAboutError();
                     }
-                }
-                else if(!Helper.isNetworkAvailable(getApplicationContext()))
-                {
-                    handlerMaps.post(new Runnable(){
-                        public void run(){
+                } else if (!Helper.isNetworkAvailable(getApplicationContext())) {
+                    handlerMaps.post(new Runnable() {
+                        public void run() {
 
                             Toast.makeText(MapsActivity.this,
                                     getApplicationContext().getString(R.string.no_internet_connetion),
                                     Toast.LENGTH_LONG).show();
                         }
                     });
-                }
-                else
-                {
+                } else {
                     alertUserAboutError();
                 }
             }
         }.start();
     }
+
     private void alertUserAboutError() {
         AlertDialogFragment dialog = new AlertDialogFragment();
         dialog.show(getFragmentManager(), "error_dialog");
     }
+
 }
