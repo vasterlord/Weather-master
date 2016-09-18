@@ -51,7 +51,7 @@ public class RegisterActivity extends AppCompatActivity implements RegisterView,
     EditText etLoginRegister, etPasswordRegister, etUserName, etCity, etConfirmPassword;
     ImageView ivCamera, ivGalary, ivOkRegister, ivCancelRegister, ivRegisterPhotoUser;
     ProgressBar progressBarRegister;
-    int result , result2;
+    int result, result1, result2;
     private static final int PERMISSION_REQUEST_CODE = 1;
     CameraPhoto cameraPhoto;
     private final int CAMERA_REQUEST = 13323;
@@ -180,21 +180,17 @@ public class RegisterActivity extends AppCompatActivity implements RegisterView,
                 progressBarRegister.setVisibility(View.VISIBLE);
                 break;
             case R.id.iv_camera:
-                try {
-                    result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                    result2 = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
-                   // if ((result == PackageManager.PERMISSION_GRANTED) && (result2 == PackageManager.PERMISSION_GRANTED)) {
-                       startActivityForResult(cameraPhoto.takePhotoIntent(), CAMERA_REQUEST);
-                        cameraPhoto.addToGallery();
-//                    }
-//                    else {
-//                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},PERMISSION_REQUEST_CODE);
-//                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},PERMISSION_REQUEST_CODE);
-//                    }
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                    result1 = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                    result2 = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+                if ((result1 == PackageManager.PERMISSION_GRANTED)){
+                    try {
+                        startActivityForResult(cameraPhoto.takePhotoIntent(), CAMERA_REQUEST);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    cameraPhoto.addToGallery();
+                    } else {ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},PERMISSION_REQUEST_CODE);}
 
                 break;
             case R.id.iv_galery:
@@ -205,7 +201,6 @@ public class RegisterActivity extends AppCompatActivity implements RegisterView,
                 else {
                     ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},PERMISSION_REQUEST_CODE);
                 }
-
                 break;
             case R.id.iv_cancel_register:
                 NavUtils.navigateUpFromSameTask(RegisterActivity.this);
