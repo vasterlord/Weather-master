@@ -1,10 +1,10 @@
 package ivanrudyk.com.open_weather_api.ui.activity;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     private Dialog d;
     private FirebaseHelper firebaseHelper = new FirebaseHelper();
     private CallbackManager mCallbackManager;
+    private Boolean stopValue = false;
     //-------------------------------------------------------------------------------------------------------------------
     private static String BASE_DAILY_FORECAST_URL_CITY = "http://api.openweathermap.org/data/2.5/forecast/daily?mode=json&q=%s&units=metric&APPId=%s";
     private static String BASE_DAILY_FORECAST_URL_COORD = "http://api.openweathermap.org/data/2.5/forecast/daily?mode=json&lat=%s&lon=%s&units=metric&APPId=%s";
@@ -241,7 +242,9 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            ViewPager();
+           if(!stopValue) {
+                ViewPager();
+           }
         }
     }
 
@@ -477,6 +480,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         Realm.setDefaultConfiguration(realmConfiguration);
         mAuth = FirebaseAuth.getInstance();
         profile = Profile.getCurrentProfile();
+        stopValue = false;
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -501,7 +505,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         onCreareToolBar();
         mt = new HeadActivityTask();
         mt.execute();
-
+        presenter.setFavoriteLocatinOnMainWindow();
         ibLogin.setOnClickListener(this);
         mCallbackManager = new CallbackManager.Factory().create();
         mRefreshImageView.setOnClickListener(this);
@@ -628,6 +632,7 @@ else if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
 
     @Override
     protected void onStart() {
+        stopValue = false;
         super.onStart();
         setVisibleLoginItem();
         mAuth.addAuthStateListener(mAuthListener);
@@ -656,6 +661,7 @@ else if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
     @Override
     protected void onPause() {
         super.onPause();
+        stopValue = true;
         RealmDbHelper dbHelper = new RealmDbHelper();
         ModelUser u = new ModelUser();
         u = dbHelper.retriveUserFromRealm(this);
@@ -672,6 +678,7 @@ else if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
     @Override
     public void onStop() {
         super.onStop();
+        stopValue = true;
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
@@ -720,7 +727,9 @@ else if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
     private void onCreateNavigationDraver() {
         NavigationDraverFragment draverFragment = (NavigationDraverFragment)
                 getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_draver);
-        draverFragment.setUp(R.id.fragment_navigation_draver, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar, users, uid);
+        if (!stopValue) {
+            draverFragment.setUp(R.id.fragment_navigation_draver, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar, users, uid);
+        }
     }
 
     @Override
@@ -952,6 +961,11 @@ else if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
         loginFirebase(userLogin, userPassword);
         LoginProgress loginProgress = new LoginProgress();
         loginProgress.execute();
+    }
+
+    @Override
+    public void setFavoriteLocatinActivity(String s) {
+        updateWeatherData(city, 0.0, 0.0, BASE_CURRENT_WEATHER_URL_CITY);
     }
 
 

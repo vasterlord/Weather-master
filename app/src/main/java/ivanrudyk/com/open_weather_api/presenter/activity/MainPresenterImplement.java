@@ -72,6 +72,35 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
         loginFacebookProgress.execute();
     }
 
+    @Override
+    public void setFavoriteLocatinOnMainWindow() {
+//        new AsyncTask<Void,Void,Void>(){
+//
+//            @Override
+//            protected Void doInBackground(Void... voids) {
+//                do  {
+//                    try {
+//                        Thread.sleep(500);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                }while (FavoritesLocationAdapterWeather.city.equals(""));
+//                try {
+//                    Thread.sleep(100);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//                return null;
+//            }
+//
+//            @Override
+//            protected void onPostExecute(Void aVoid) {
+//                super.onPostExecute(aVoid);
+//                mainView.setFavoriteLocatinActivity(FavoritesLocationAdapterWeather.city.toString());
+//            }
+//        }.execute();
+    }
+
     private boolean listenerFacebook() {
         if (FirebaseHelper.modelUser.getUserName() != null) {
             t = true;

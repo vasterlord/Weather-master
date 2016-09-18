@@ -7,4 +7,6 @@ import ivanrudyk.com.open_weather_api.model.ModelUser;
  */
 public interface NavigatonDraverPresenter {
     void addLocation(ModelUser users, String uid, String s);
+
+    void deleteLocation(ModelUser uses, String uid, int position);
 }

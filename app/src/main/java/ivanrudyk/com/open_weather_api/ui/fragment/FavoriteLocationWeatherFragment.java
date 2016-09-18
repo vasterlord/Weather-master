@@ -30,7 +30,6 @@ import ivanrudyk.com.open_weather_api.model.WeatherUrl;
 public class FavoriteLocationWeatherFragment extends Fragment {
 
 
-    RecyclerView.Adapter mRecyclerView;
     RecyclerView resV;
     TextView mLocationLabel;
     RelativeLayout favoriteLayout;
@@ -41,6 +40,10 @@ public class FavoriteLocationWeatherFragment extends Fragment {
     CurrentlyWeather mCurrent = new CurrentlyWeather();
     private final String apiKey = "ddec71381c5621cdddefb5c58581e5bc";
     ArrayList<FavoriteLocationWeather> arrayListLocation = new ArrayList<>();
+    private int pokaznyk;
+
+    private RecyclerView mRecyclerView;
+    private LinearLayoutManager mLinearLayoutManager;
 
 
 
@@ -48,7 +51,7 @@ public class FavoriteLocationWeatherFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View favoriteLocationFragment = inflater.inflate(R.layout.fragment_favorite_location_weather, container, false);
-        resV = (RecyclerView) favoriteLocationFragment.findViewById(R.id.reyclerViewFavorite);
+        mRecyclerView = (RecyclerView) favoriteLocationFragment.findViewById(R.id.reyclerViewFavorite);
 
         mLocationLabel = (TextView) favoriteLocationFragment.findViewById(R.id.locationLabel);
         favoriteLayout = (RelativeLayout) favoriteLocationFragment.findViewById(R.id.favorite_layuot);
@@ -56,35 +59,30 @@ public class FavoriteLocationWeatherFragment extends Fragment {
         mEmptyTextView.setVisibility(View.INVISIBLE);
 
         UpdateLocationWeather();
-
-
         return favoriteLocationFragment;
     }
 
 
     public void UpdateLocationWeather() {
         new AsyncTask<Void, Void, Void>() {
-
             @Override
             protected Void doInBackground(Void... voids) {
+                int i =0;
                 do
                     try {
                         Thread.sleep(100);
+                        i++;
                         Log.e("INTERNALLL: ", String.valueOf(FavoriteLocationWeather.listLocation.size()));
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                while (FavoriteLocationWeather.listLocation.size() == 0);
+                while (FavoriteLocationWeather.listLocation.size() == 0&&i<10);
 
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-
-//                for (int i =0; i< FirebaseHelper.modelUser.getLocation().getLocation().size(); i++) {
-//                    retriveWeatherData(FirebaseHelper.modelUser.getLocation().getLocation().get(i));
-//                }
 
                 return null;
             }
@@ -93,43 +91,42 @@ public class FavoriteLocationWeatherFragment extends Fragment {
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-
                 retriveWeatherData(FavoriteLocationWeather.listLocation);
-
-
             }
         }.execute();
-
 
     }
 
     private void setAdapter(ArrayList<FavoriteLocationWeather> arrayListLocation) {
-//        for (int i = 0; i<10 ; i++){
-//            favoritLocWeather.setCity("dbn");
-//            favoritLocWeather.setSummary("gnazb");
-//            favoritLocWeather.setTemperature("34");
-//            arrayListLocation.add(favoritLocWeather);
-//        }
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-        resV.setLayoutManager(layoutManager);
-        favoriteAdapter = new FavoritesLocationAdapterWeather(getContext(), arrayListLocation);
-        resV.setAdapter(favoriteAdapter);
+        mLinearLayoutManager = new LinearLayoutManager(getActivity());
+        mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setLayoutManager(mLinearLayoutManager);
+        mRecyclerView.setAdapter(favoriteAdapter);
+
+
+//        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+//        resV.setLayoutManager(layoutManager);
+//        favoriteAdapter = new FavoritesLocationAdapterWeather(getContext(), arrayListLocation);
+//        resV.setAdapter(favoriteAdapter);
         Log.e("INTERNALLL: ", "Set Adapter favorite");
         Log.e("INTERNALLL: ", String.valueOf(arrayListLocation.size()));
-        resV.setHasFixedSize(true);
+//        resV.setHasFixedSize(true);
     }
 
     private void retriveWeatherData(final ArrayList<String> city) {
         arrayListLocation.clear();
+        pokaznyk =0;
+        if (FavoriteLocationWeather.listLocation.size()>0) {
+            if (FavoriteLocationWeather.listLocation.get(0).equals("")) {
+                pokaznyk++;
+            }
+        }
         new AsyncTask<Void, String, Void>() {
-
             @Override
             protected Void doInBackground(Void... voids) {
-                int j =0;
-                if (FavoriteLocationWeather.listLocation.get(0).equals("")){
-                    j++;
-                }
-                for (int i = j; i < FavoriteLocationWeather.listLocation.size(); i++) {
+
+                for (int i = pokaznyk; i < FavoriteLocationWeather.listLocation.size(); i++) {
                     try {
                         forecastUrl = RemoteFetch.getCurrent(getContext(), (new URL(String.format(WeatherUrl.BASE_CURRENT_WEATHER_URL_CITY, city.get(i), apiKey))));
                     } catch (MalformedURLException e) {
@@ -147,7 +144,7 @@ public class FavoriteLocationWeatherFragment extends Fragment {
                     }
                     FavoriteLocationWeather favoritLocWeather = new FavoriteLocationWeather();
                     favoritLocWeather.setCity(mCurrent.mLocationCurrentWeather.getCity());
-                    favoritLocWeather.setSummary(mCurrent.mCurrentCondition.getDescription());
+                    favoritLocWeather.setImageSummary(mCurrent.getIconId());
                     favoritLocWeather.setTemperature(mCurrent.mTemperature.getTemperature());
                     arrayListLocation.add(favoritLocWeather);
                     Log.e("LOG: ", "Arraylist loc size  = "+ arrayListLocation.size());
@@ -167,7 +164,7 @@ public class FavoriteLocationWeatherFragment extends Fragment {
             }
         }.execute();
 
-    }
 
+    }
 
 }

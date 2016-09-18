@@ -20,6 +20,9 @@ import ivanrudyk.com.open_weather_api.model.FavoriteLocationWeather;
 public class FavoritesLocationAdapterWeather extends  RecyclerView.Adapter<FavoritesLocationAdapterWeather.ViewHolder> {
     private Context context;
     private ArrayList<FavoriteLocationWeather> arrayListLocation = new ArrayList<>();
+    public static String city = "";
+
+
 
 
 
@@ -47,33 +50,36 @@ public class FavoritesLocationAdapterWeather extends  RecyclerView.Adapter<Favor
     public int getItemCount() {
         return arrayListLocation.size();
     }
-//    }
 
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView tvCity;
         TextView tvTemperarure;
-        TextView tvSummary;
+        ImageView ivSummary;
         public ImageView ivIconSummaryFavLoc;
 
         public ViewHolder(View itemView) {
             super(itemView);
             tvCity = (TextView) itemView.findViewById(R.id.tvCityFl);
-            tvSummary = (TextView) itemView.findViewById(R.id.tvSummaryFavLoc);
+            ivSummary = (ImageView) itemView.findViewById(R.id.ivImageViewFavorite);
             tvTemperarure = (TextView) itemView.findViewById(R.id.tetvTperatureFavLoc);
             ivIconSummaryFavLoc = (ImageView) itemView.findViewById(R.id.ivImageViewFavorite);
+
+            itemView.setOnClickListener(this);
         }
 
         public void bindFavorite(FavoriteLocationWeather favoritLocWeather) {
-            Log.e("INTERNALLL: ", "Set Adapter favorite222"+favoritLocWeather.getSummary());
-            tvSummary.setText(favoritLocWeather.getSummary());
+            ivSummary.setImageResource(favoritLocWeather.getImageSummary());
             tvTemperarure.setText(String.format("%.0f",favoritLocWeather.getTemperature()) + "℃");
             tvCity.setText(favoritLocWeather.getCity());
         }
 
         @Override
-        public void onClick(View view) {
-
+        public void onClick(View v) {
+         //   city = tvCity.getText().toString();
         }
     }
+
+
+
 }

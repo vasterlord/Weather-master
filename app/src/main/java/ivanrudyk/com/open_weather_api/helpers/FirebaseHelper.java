@@ -20,6 +20,7 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
+import ivanrudyk.com.open_weather_api.model.FavoriteLocationWeather;
 import ivanrudyk.com.open_weather_api.model.ModelLocation;
 import ivanrudyk.com.open_weather_api.model.ModelUser;
 
@@ -167,14 +168,8 @@ public class FirebaseHelper {
     }
 
     class ImplementAddLocation extends AsyncTask<String, Void, Void> {
-
         ArrayList<String> listLocation = new ArrayList();
         ModelLocation mlocation = new ModelLocation();
-
-        @Override
-        protected void onPreExecute() {
-
-        }
 
         @Override
         protected Void doInBackground(String... strings) {
@@ -194,15 +189,78 @@ public class FirebaseHelper {
             else
             listLocation.addAll(modelLocation.getLocation());
 
+
             listLocation.add(strings[0]);
             mlocation.setLocation(listLocation);
             refLocation.setValue(mlocation);
+            FavoriteLocationWeather.listLocation.clear();
+            FavoriteLocationWeather.listLocation.addAll(listLocation);
             return null;
         }
+    }
 
-        @Override
-        protected void onPostExecute(Void aVoid) {
+    public void deleteLocationFirebaseCity(String userName, final String uid, final String location){
+        retriveDataLocation(userName, uid);
+        refLocation = database.child("Users").child(uid).child(userName).child("location");
+        final ArrayList<String> listLocation = new ArrayList();
+        final ModelLocation mlocation = new ModelLocation();
+        new AsyncTask<String, Void, Void>(){
+            @Override
+            protected Void doInBackground(String... strings) {
+                do {
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }while (modelLocation.getLocation().size()==0);
 
-        }
+                listLocation.clear();
+                listLocation.addAll(modelLocation.getLocation());
+
+                for (int i = 0; i<listLocation.size(); i++){
+                    if (strings[0].equals(listLocation.get(i)));{
+                        listLocation.remove(i);
+                    }
+                }
+                mlocation.setLocation(listLocation);
+                refLocation.setValue(mlocation);
+                FavoriteLocationWeather.listLocation.clear();
+                FavoriteLocationWeather.listLocation.addAll(listLocation);
+                return null;
+            }
+        }.execute(location);
+    }
+
+    public void deleteLocationFirebaseId(String userName, final String uid, final int id){
+        retriveDataLocation(userName, uid);
+        refLocation = database.child("Users").child(uid).child(userName).child("location");
+        final ArrayList<String> listLocation = new ArrayList();
+        final ModelLocation mlocation = new ModelLocation();
+        new AsyncTask<Integer, Void, Void>(){
+            @Override
+            protected Void doInBackground(Integer... integers) {
+                {
+                    do {
+                        try {
+                            Thread.sleep(50);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    } while (modelLocation.getLocation().size() == 0);
+
+                    listLocation.clear();
+                    listLocation.addAll(modelLocation.getLocation());
+                            listLocation.remove(id);
+
+                    mlocation.setLocation(listLocation);
+                    refLocation.setValue(mlocation);
+                    FavoriteLocationWeather.listLocation.clear();
+                    FavoriteLocationWeather.listLocation.addAll(listLocation);
+                    return null;
+                }
+            }
+        }.execute(id);
+
     }
 }

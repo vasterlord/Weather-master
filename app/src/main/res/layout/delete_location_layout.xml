@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Theme.AppCompat.NoActionBar"
+    android:layout_width="match_parent"
+    android:layout_height="160dp"
+    android:background="@color/colorDialog"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:id="@+id/tvDeleteLocationInfo"
+        android:textSize="20dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginBottom="10dp"
+        android:gravity="center_vertical|center_horizontal" />
+
+    <Button
+        android:id="@+id/bCencelDeleteLocation"
+        android:layout_width="143dp"
+        android:layout_height="67dp"
+        android:layout_gravity="center_horizontal|bottom"
+        android:text="Cencel"
+        android:layout_alignParentBottom="true"
+        android:layout_toStartOf="@+id/tvDeleteLocationInfo"
+        android:layout_marginRight="75dp"
+        android:layout_marginBottom="10dp" />
+
+    <Button
+        android:id="@+id/bOkDeleteLocation"
+        android:layout_width="143dp"
+        android:layout_height="67dp"
+        android:layout_gravity="center_horizontal|bottom"
+        android:text="Delete"
+        android:layout_alignParentBottom="true"
+        android:layout_toEndOf="@+id/progressBarAddLocation"
+        android:layout_marginLeft="75dp"
+        android:layout_marginBottom="10dp" />
+
+    <ProgressBar
+        android:visibility="invisible"
+        android:id="@+id/progressBarAddLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminateDrawable="@drawable/spinner_ring"
+        android:indeterminateOnly="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:indeterminate="false"
+        android:layout_gravity="center_horizontal|top" />
+</FrameLayout>

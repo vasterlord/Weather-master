@@ -10,11 +10,11 @@ public interface NavigationDraverView {
 
     void setLocationAddError(String s);
 
-    void setDialogClosed();
+    void setDialogClosed(String parametrProgress);
 
-    void showProgress();
+    void showProgress(String param);
 
-    void hideProgress();
+    void hideProgress(String parametrProgress);
 
     void setUser(ModelUser user);
 }

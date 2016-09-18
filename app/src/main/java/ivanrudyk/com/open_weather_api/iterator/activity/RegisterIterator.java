@@ -1,7 +1,5 @@
 package ivanrudyk.com.open_weather_api.iterator.activity;
 
-import android.graphics.Bitmap;
-
 import ivanrudyk.com.open_weather_api.model.ModelUser;
 
 /**
