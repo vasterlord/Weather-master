@@ -773,7 +773,6 @@ else if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
         }
     }
 
-
     private void showDialogLogin() {
         loginButtonFacebook.setReadPermissions("email", "public_profile");
         loginButtonFacebook.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
