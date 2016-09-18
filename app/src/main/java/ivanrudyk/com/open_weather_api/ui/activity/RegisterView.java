@@ -13,7 +13,7 @@ public interface RegisterView {
 
     void setUsernameError();
 
-    void setPasswordError();
+    void setPasswordError(String s);
 
     void setLoginError();
 

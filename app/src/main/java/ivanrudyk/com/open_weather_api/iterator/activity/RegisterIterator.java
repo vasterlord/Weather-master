@@ -13,7 +13,7 @@ public interface RegisterIterator {
 
         void onUsernameError();
 
-        void onPasswordError();
+        void onPasswordError(String s);
 
         void onSuccess();
 

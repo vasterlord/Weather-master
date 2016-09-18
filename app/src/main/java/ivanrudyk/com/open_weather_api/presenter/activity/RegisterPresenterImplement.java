@@ -56,9 +56,9 @@ public class RegisterPresenterImplement implements RegisterPresenter, RegisterIt
     }
 
     @Override
-    public void onPasswordError() {
+    public void onPasswordError(String s) {
         if (registerView != null) {
-            registerView.setPasswordError();
+            registerView.setPasswordError(s);
             registerView.hideProgress();
         }
     }

@@ -137,7 +137,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
 
         @Override
         public void onCancel() {
-
         }
 
         @Override
@@ -489,6 +488,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
                     profile = Profile.getCurrentProfile();
                     if (profile != null)
                         presenter.loginFacebook(profile, user.getUid(), getApplicationContext());
+                    progressBar.setVisibility(View.VISIBLE);
                     Log.e("TAG", "onAuthStateChanged:signed_in:" + user.getUid());
                 } else {
                     Log.e("TAG", "onAuthStateChanged:signed_out");
@@ -507,6 +507,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         mCallbackManager = new CallbackManager.Factory().create();
         mRefreshImageView.setOnClickListener(this);
         InitializeDialog();
+        progressBar = (ProgressBar) d.findViewById(R.id.progressBarLogin);
         LoginProgress loginProgress = new LoginProgress();
         loginProgress.execute();
         LocationManager locationManager;
@@ -801,7 +802,7 @@ else if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
 
             }
         });
-        progressBar = (ProgressBar) d.findViewById(R.id.progressBarLogin);
+
         imOk = (ImageView) d.findViewById(R.id.iv_ok_login);
         etRegister = (TextView) d.findViewById(R.id.etRegister);
         etRegister.setSelectAllOnFocus(true);

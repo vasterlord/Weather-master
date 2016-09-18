@@ -258,6 +258,7 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
 
         @Override
         protected void onPostExecute(Void aVoid) {
+            mainView.hideProgress();
             Log.e("TESTING", "LOG");
             activeUser = FirebaseHelper.modelUser;
             activeUser.setPhoto(FirebaseHelper.photoDownload);

@@ -38,7 +38,11 @@ public class RegisterIteratorInplement implements RegisterIterator {
                 }
 
                 if (TextUtils.isEmpty(paswordsAndCity[0])){
-                    listener.onPasswordError();
+                    listener.onPasswordError("password is empty");
+                    error = true;
+                }
+                if (paswordsAndCity[0].length()<6){
+                    listener.onPasswordError("password is short");
                     error = true;
                 }
                 if (!error){
