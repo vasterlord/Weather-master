@@ -25,6 +25,7 @@ public class FavoritesLocationAdapterWeather extends  RecyclerView.Adapter<Favor
 
     private void initsializeMainView(MainView mainView){
         this.mainView = mainView;
+
     }
 
     public FavoritesLocationAdapterWeather(Context applicationContext, ArrayList<FavoriteLocationWeather> arrayListLocation) {
