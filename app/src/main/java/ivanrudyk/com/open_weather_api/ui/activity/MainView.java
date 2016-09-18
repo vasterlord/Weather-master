@@ -18,5 +18,5 @@ public interface MainView {
 
     void loginUserFirebase(String userLogin, String userPassword);
 
-    void setFavoriteLocatinActivity(String s);
+    void setFavoriteLocatinActivity(int position);
 }

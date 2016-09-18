@@ -98,6 +98,7 @@ public class FavoriteLocationWeatherFragment extends Fragment {
     }
 
     private void setAdapter(ArrayList<FavoriteLocationWeather> arrayListLocation) {
+        favoriteAdapter = new FavoritesLocationAdapterWeather(getActivity(), arrayListLocation);
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
         mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setHasFixedSize(true);

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 
 import ivanrudyk.com.open_weather_api.R;
 import ivanrudyk.com.open_weather_api.model.FavoriteLocationWeather;
+import ivanrudyk.com.open_weather_api.ui.activity.MainView;
 
 /**
  * Created by Ivan on 19.08.2016.
@@ -20,11 +21,11 @@ import ivanrudyk.com.open_weather_api.model.FavoriteLocationWeather;
 public class FavoritesLocationAdapterWeather extends  RecyclerView.Adapter<FavoritesLocationAdapterWeather.ViewHolder> {
     private Context context;
     private ArrayList<FavoriteLocationWeather> arrayListLocation = new ArrayList<>();
-    public static String city = "";
+    MainView mainView;
 
-
-
-
+    private void initsializeMainView(MainView mainView){
+        this.mainView = mainView;
+    }
 
     public FavoritesLocationAdapterWeather(Context applicationContext, ArrayList<FavoriteLocationWeather> arrayListLocation) {
         this.context = applicationContext;
@@ -36,13 +37,20 @@ public class FavoritesLocationAdapterWeather extends  RecyclerView.Adapter<Favor
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.favorite_lication_list_item, parent, false);
         ViewHolder holder  = new ViewHolder(view);
+        initsializeMainView((MainView) context);
         Log.e("INTERNALLL: ", "Set Adapter favorite222");
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         holder.bindFavorite(arrayListLocation.get(position));
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               mainView.setFavoriteLocatinActivity(position);
+            }
+        });
     }
 
 
@@ -51,8 +59,7 @@ public class FavoritesLocationAdapterWeather extends  RecyclerView.Adapter<Favor
         return arrayListLocation.size();
     }
 
-
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder  {
         TextView tvCity;
         TextView tvTemperarure;
         ImageView ivSummary;
@@ -65,7 +72,7 @@ public class FavoritesLocationAdapterWeather extends  RecyclerView.Adapter<Favor
             tvTemperarure = (TextView) itemView.findViewById(R.id.tetvTperatureFavLoc);
             ivIconSummaryFavLoc = (ImageView) itemView.findViewById(R.id.ivImageViewFavorite);
 
-            itemView.setOnClickListener(this);
+
         }
 
         public void bindFavorite(FavoriteLocationWeather favoritLocWeather) {
@@ -74,12 +81,6 @@ public class FavoritesLocationAdapterWeather extends  RecyclerView.Adapter<Favor
             tvCity.setText(favoritLocWeather.getCity());
         }
 
-        @Override
-        public void onClick(View v) {
-         //   city = tvCity.getText().toString();
-        }
+
     }
-
-
-
 }

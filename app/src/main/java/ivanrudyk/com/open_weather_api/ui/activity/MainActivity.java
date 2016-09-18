@@ -131,9 +131,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     private FacebookCallback<LoginResult> mCallback = new FacebookCallback<LoginResult>() {
         @Override
         public void onSuccess(LoginResult loginResult) {
-//                AccessToken accessToken = loginResult.getAccessToken();
-//                handleFacebookAccessToken(loginResult.getAccessToken());
-//                Log.e(TAG, "SsssssignInnn");
             mAuth.signOut();
             dbHelper.deleteUserFromRealm(getApplicationContext());
         }
@@ -964,8 +961,8 @@ else if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
     }
 
     @Override
-    public void setFavoriteLocatinActivity(String s) {
-        updateWeatherData(city, 0.0, 0.0, BASE_CURRENT_WEATHER_URL_CITY);
+    public void setFavoriteLocatinActivity(int position) {
+        updateWeatherData(FavoriteLocationWeather.listLocation.get(position), 0.0, 0.0, BASE_CURRENT_WEATHER_URL_CITY);
     }
 
 
