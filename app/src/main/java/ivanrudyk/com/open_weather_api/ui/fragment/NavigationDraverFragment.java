@@ -199,8 +199,8 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
 
     public void arrayAdapter() {
         locationAdapter = new FavoritesLocationAdapter(getActivity(), users.getLocation().getLocation());
-        if (users.getLocation() != null && users.getLocation().getLocation().size() > 0) {
-            String temp = users.getLocation().getLocation().get(0);
+        if (FavoriteLocationWeather.listLocation!=null && FavoriteLocationWeather.listLocation.size()>0) {
+            String temp = FavoriteLocationWeather.listLocation.get(0);
                 lvLocation.setAdapter(locationAdapter);
         }
 
@@ -246,9 +246,9 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
             }
         };
 
-        if (!mUserLearndDrawer && !mFromSavedInstanseState) {
-            mDrawerLayout.openDrawer(containerView);
-        }
+//        if (!mUserLearndDrawer && !mFromSavedInstanseState) {
+//            mDrawerLayout.openDrawer(containerView);
+//        }
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerLayout.post(new Runnable() {

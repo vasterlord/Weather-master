@@ -15,5 +15,4 @@ public interface MainPresenter {
 
     void loginFacebook(Profile profile, String uid, Context applicationContext);
 
-    void setFavoriteLocatinOnMainWindow();
 }

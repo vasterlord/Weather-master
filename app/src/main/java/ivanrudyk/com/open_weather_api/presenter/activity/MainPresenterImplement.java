@@ -17,6 +17,7 @@ import ivanrudyk.com.open_weather_api.helpers.FirebaseHelper;
 import ivanrudyk.com.open_weather_api.helpers.RealmDbHelper;
 import ivanrudyk.com.open_weather_api.iterator.activity.MainIterator;
 import ivanrudyk.com.open_weather_api.iterator.activity.MainIteratorImlement;
+import ivanrudyk.com.open_weather_api.model.FavoriteLocationWeather;
 import ivanrudyk.com.open_weather_api.model.Forecast;
 import ivanrudyk.com.open_weather_api.model.ModelLocation;
 import ivanrudyk.com.open_weather_api.model.ModelUser;
@@ -72,34 +73,7 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
         loginFacebookProgress.execute();
     }
 
-    @Override
-    public void setFavoriteLocatinOnMainWindow() {
-//        new AsyncTask<Void,Void,Void>(){
-//
-//            @Override
-//            protected Void doInBackground(Void... voids) {
-//                do  {
-//                    try {
-//                        Thread.sleep(500);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//                }while (FavoritesLocationAdapterWeather.city.equals(""));
-//                try {
-//                    Thread.sleep(100);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//                return null;
-//            }
-//
-//            @Override
-//            protected void onPostExecute(Void aVoid) {
-//                super.onPostExecute(aVoid);
-//                mainView.setFavoriteLocatinActivity(FavoritesLocationAdapterWeather.city.toString());
-//            }
-//        }.execute();
-    }
+
 
     private boolean listenerFacebook() {
         if (FirebaseHelper.modelUser.getUserName() != null) {
@@ -150,11 +124,7 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
 
         @Override
         protected Void doInBackground(Void... voids) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+
             do {
                 try {
                     Thread.sleep(100);
@@ -162,6 +132,11 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
                     e.printStackTrace();
                 }
             } while (profile == null);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             Log.e("TESTING", "88888888888");
             do {
                 try {
@@ -203,17 +178,10 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
             }
             LoginFacebookProgress2 loginFacebookProgress2 = new LoginFacebookProgress2();
             loginFacebookProgress2.execute();
-
         }
     }
 
     private class LoginFacebookProgress2 extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-        }
-
         @Override
         protected Void doInBackground(Void... voids) {
             if (!listenerFacebook()) {
@@ -245,13 +213,29 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
             } else {
                 firebaseHelper.retrivDataUser(uid);
                 firebaseHelper.downloadPhotoStorage(uid);
+
                 do {
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(50);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                } while (FirebaseHelper.photoDownload == null && FirebaseHelper.modelUser == null);
+                } while (FirebaseHelper.photoDownload == null || FirebaseHelper.modelUser == null);
+                do {
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }while (FirebaseHelper.modelUser.getUserName().length() < 1);
+                firebaseHelper.retriveDataLocation(FirebaseHelper.modelUser.getUserName(), uid);
+                do {
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } while (FirebaseHelper.modelLocation.getLocation().size() ==0 || FirebaseHelper.modelUser == null);
             }
             return null;
         }
@@ -265,6 +249,7 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
             if (dbHelper.retriveUserFromRealm(context) != null)
                 dbHelper.deleteUserFromRealm(context);
             dbHelper.saveUserToRealm(activeUser, context);
+            FavoriteLocationWeather.listLocation = FirebaseHelper.modelLocation.getLocation();
             mainView.setDialogClosed();
             mainView.setUser(activeUser);
         }

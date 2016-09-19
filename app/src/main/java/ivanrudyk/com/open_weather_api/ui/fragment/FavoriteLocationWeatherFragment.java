@@ -35,7 +35,6 @@ public class FavoriteLocationWeatherFragment extends Fragment {
     RelativeLayout favoriteLayout;
     TextView mEmptyTextView;
     FavoritesLocationAdapterWeather favoriteAdapter;
-    private RecyclerView.LayoutManager llm;
     private String forecastUrl;
     CurrentlyWeather mCurrent = new CurrentlyWeather();
     private final String apiKey = "ddec71381c5621cdddefb5c58581e5bc";
