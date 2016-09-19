@@ -1,6 +1,5 @@
 package ivanrudyk.com.open_weather_api.ui.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -22,7 +21,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         setContentView(R.layout.activity_settings);
 
         mainIterator = new MainIteratorImlement();
-        Intent intent = getIntent();
 
     }
 

@@ -3,6 +3,8 @@ package ivanrudyk.com.open_weather_api.ui.activity;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
@@ -36,6 +38,7 @@ import java.util.Locale;
 
 import ivanrudyk.com.open_weather_api.R;
 import ivanrudyk.com.open_weather_api.helpers.AlertDialogFragment;
+import ivanrudyk.com.open_weather_api.helpers.FirebaseHelper;
 import ivanrudyk.com.open_weather_api.helpers.Helper;
 import ivanrudyk.com.open_weather_api.helpers.JSONWeatherParser;
 import ivanrudyk.com.open_weather_api.helpers.RemoteFetch;
@@ -66,6 +69,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleApiClient client;
     Helper mHelper = new Helper();
     LatLng latLng;
+    private String userName;
+    private String uid;
+    FirebaseHelper firebaseHelper = new FirebaseHelper();
+    private CurrentlyWeather currentlyWeather;
+
     public MapsActivity() {
         handlerMaps = new Handler();
     }
@@ -78,6 +86,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+
+        Intent intent = getIntent();
+        uid = intent.getStringExtra("fnameMaps1");
+        userName = intent.getStringExtra("fnameMaps2");
+
     }
 
     @Override
@@ -137,9 +150,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .inflate(R.layout.map_weather, null, false);
         mBuilder.setView(mView);
         mBuilder.setTitle("Current weather in this place : ")
-                .setPositiveButton(MapsActivity.this.getString(R.string.error_ok_button_text), null);
+                .setPositiveButton(MapsActivity.this.getString(R.string.error_ok_button_text), null)
+                .setNegativeButton(R.string.add_to_favorite, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        addLocationToFirebase();
+                    }
+                });
         return mBuilder.create();
     }
+
+    private void addLocationToFirebase() {
+        if (uid != null && userName != null){
+            firebaseHelper.addDataLocation(userName, uid, currentlyWeather.mLocationCurrentWeather.getCity());
+        }
+        else {
+            Toast.makeText(MapsActivity.this,
+                    "Please, login before!!!",
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
 
     @Override
     protected void onPrepareDialog(int id, Dialog dialog) {
@@ -156,7 +187,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     protected void updateDisplayDialog() {
-        CurrentlyWeather currentlyWeather = mForecastMaps.getCurrent();
+        currentlyWeather = mForecastMaps.getCurrent();
         cityField.setText(currentlyWeather.mLocationCurrentWeather.getCity().toUpperCase(Locale.US) +
                 ", " +
                 currentlyWeather.mLocationCurrentWeather.getCountry().toUpperCase(Locale.US));
