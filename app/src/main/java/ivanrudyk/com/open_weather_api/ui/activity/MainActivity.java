@@ -1,16 +1,14 @@
 package ivanrudyk.com.open_weather_api.ui.activity;
 
-import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
@@ -187,16 +185,18 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     private final DailyWeatherFragment dailyWeatherFragment = new DailyWeatherFragment();
     private final FavoriteLocationWeatherFragment favoriteLocationWeatherFragment = new FavoriteLocationWeatherFragment();
     HeadActivityTask mt;
-    private Boolean stopResult = false;
     int result;
     private static final int PERMISSION_REQUEST_CODE = 1;
 
     @Override
     public void eventMapsOpen(String s) {
-        if (Helper.isNetworkAvailable(getApplicationContext())) {
-            Intent intent = new Intent(this, MapsActivity.class);
-            startActivity(intent);
-        } else if (!Helper.isNetworkAvailable(getApplicationContext())) {
+        if (Helper.isNetworkAvailable(getApplicationContext()))
+        {
+        Intent intent = new Intent(this, MapsActivity.class);
+        startActivity(intent);
+        }
+        else if (!Helper.isNetworkAvailable(getApplicationContext()))
+        {
             Toast.makeText(MainActivity.this,
                     "No internet connection. Go to settings and turn on internet",
                     Toast.LENGTH_LONG).show();
@@ -220,8 +220,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
                 .getSystemService(LOCATION_SERVICE);
         carentLOcationRefresh(locationManager);
     }
-
-    @TargetApi(Build.VERSION_CODES.CUPCAKE)
     public class HeadActivityTask extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -242,13 +240,10 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            if (!stopResult) {
-                ViewPager();
-            }
+            ViewPager();
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.DONUT)
     private void ViewPager() {
         firebaseHelper.retrivDataUser(uid);
         viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
@@ -258,9 +253,11 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
                     return hourlyWeatherFragment;
                 } else if (position == 1) {
                     return dailyWeatherFragment;
-                } else if (position == 2) {
-                    return favoriteLocationWeatherFragment;
-                } else return null;
+                }
+                else if(position == 2){
+                return favoriteLocationWeatherFragment;
+                }
+                else return null;
             }
 
             @Override
@@ -279,13 +276,11 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
 
         tabLayout.setupWithViewPager(viewPager);
     }
-
     //-------------------------------------------------------------------------------------------------------------------
-    @TargetApi(Build.VERSION_CODES.CUPCAKE)
     private void updateWeatherData(final String tempCity, final double tempLat, final double tempLon, final String tempForecastUrl) {
         new Thread() {
-            public void run() {
-                firebaseHelper.retrivDataUser(uid);
+                public void run() {
+                    firebaseHelper.retrivDataUser(uid);
                 if (Helper.isNetworkAvailable(getApplicationContext())) {
                     final String[] forecastUrl = new String[3];
                     String apiKey = "ddec71381c5621cdddefb5c58581e5bc";
@@ -437,7 +432,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         builder.show();
     }
 
-    @TargetApi(Build.VERSION_CODES.CUPCAKE)
     public void changeCity(String citySH) {
         nowURL = BASE_CURRENT_WEATHER_URL_CITY;
         updateWeatherData(citySH, coord[0], coord[1], nowURL);
@@ -447,7 +441,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         new CityPreference(this).setNowURL(nowURL);
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void alertUserAboutError() {
         AlertDialogFragment dialog = new AlertDialogFragment();
         dialog.show(getFragmentManager(), "error_dialog");
@@ -470,7 +463,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         ibLogin = (ImageButton) findViewById(R.id.ibLogin);
     }
 
-    @TargetApi(Build.VERSION_CODES.CUPCAKE)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -485,7 +477,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         mAuth = FirebaseAuth.getInstance();
         profile = Profile.getCurrentProfile();
         setTitle("");
-        stopResult = false;
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -503,15 +494,11 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
                 }
             }
         };
-        onCreareToolBar();
-        onCreareToolBar();
-
         inithializeComponent();
-
         presenter = new MainPresenterImplement(this);
         users = dbHelper.retriveUserFromRealm(this);
         Log.e(TAG, "wwwwwwwwwwwwwwwwwwwwww" + users.getUserName());
-
+        onCreareToolBar();
         mt = new HeadActivityTask();
         mt.execute();
 
@@ -523,8 +510,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         LoginProgress loginProgress = new LoginProgress();
         loginProgress.execute();
         LocationManager locationManager;
-
-
 //-------------------------------------------------------------------------------------------------------------------
 
         mRefreshImageView = (ImageView) findViewById(R.id.refreshImageView);
@@ -546,13 +531,13 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         locationManager = (LocationManager) getApplication()
                 .getSystemService(LOCATION_SERVICE);
         result = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-        if (!Helper.isNetworkAvailable(getApplicationContext()) && getObject(getApplicationContext()) == null) {
+        if (!Helper.isNetworkAvailable(getApplicationContext())&&getObject(getApplicationContext()) == null) {
             mEmptyTextView.setVisibility(View.VISIBLE);
             Toast.makeText(MainActivity.this,
                     getApplicationContext().getString(R.string.no_internet_connetion),
                     Toast.LENGTH_LONG).show();
             ForecastTransction.setForecast(getObject(getApplicationContext()));
-        } else if (!Helper.isNetworkAvailable(getApplicationContext()) && getObject(getApplicationContext()) != null) {
+        } else if(!Helper.isNetworkAvailable(getApplicationContext())&&getObject(getApplicationContext()) != null){
             mForecast = getObject(getApplicationContext());
             updateDisplay();
             ForecastTransction.setForecast(mForecast);
@@ -561,32 +546,39 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
             Toast.makeText(MainActivity.this,
                     getApplicationContext().getString(R.string.no_internet_connetion),
                     Toast.LENGTH_LONG).show();
-        } else if (result == PackageManager.PERMISSION_GRANTED) {
+        }
+        else if (result == PackageManager.PERMISSION_GRANTED) {
             CheckUpdate(locationManager);
-        } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
+        }
+        else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},PERMISSION_REQUEST_CODE);
         }
     }
 
     private void CheckUpdate(LocationManager locationManager) {
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+        {
             coord = mHelper.CoordTracker(getApplicationContext());
-            updateWeatherData(new CityPreference(MainActivity.this).getCity(), coord[0],
-                    coord[1], new CityPreference(MainActivity.this).getNowURL());
+    updateWeatherData(new CityPreference(MainActivity.this).getCity(), coord[0],
+            coord[1], new CityPreference(MainActivity.this).getNowURL());
             new CityPreference(MainActivity.this).setLat(coord[0]);
             new CityPreference(MainActivity.this).setLon(coord[1]);
-        } else if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-
-            if ((new CityPreference(MainActivity.this).getLat() == 0.0) &&
-                    (new CityPreference(MainActivity.this).getLon() == 0.0)) {
-                mEmptyTextView.setVisibility(View.VISIBLE);
-            } else if ((new CityPreference(MainActivity.this).getLat() != 0.0) &&
-                    (new CityPreference(MainActivity.this).getLon() != 0.0)) {
-                updateWeatherData(new CityPreference(MainActivity.this).getCity(), new CityPreference(MainActivity.this).getLat(),
-                        new CityPreference(MainActivity.this).getLon(), new CityPreference(MainActivity.this).getNowURL());
-            }
-            showSettingsAlert();
         }
+else if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+
+    if((new CityPreference(MainActivity.this).getLat() == 0.0) &&
+            (new CityPreference(MainActivity.this).getLon() == 0.0))
+    {
+        mEmptyTextView.setVisibility(View.VISIBLE);
+    }
+    else if((new CityPreference(MainActivity.this).getLat() != 0.0) &&
+            (new CityPreference(MainActivity.this).getLon() != 0.0))
+    {
+        updateWeatherData(new CityPreference(MainActivity.this).getCity(), new CityPreference(MainActivity.this).getLat(),
+                new CityPreference(MainActivity.this).getLon(), new CityPreference(MainActivity.this).getNowURL());
+    }
+        showSettingsAlert();
+}
     }
 
     @Override
@@ -595,27 +587,34 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
             case PERMISSION_REQUEST_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     LocationManager locationManager = (LocationManager) getApplication()
-                            .getSystemService(LOCATION_SERVICE);
-                    if ((new CityPreference(MainActivity.this).getLat() == 0.0) &&
-                            (new CityPreference(MainActivity.this).getLon() == 0.0)) {
+                        .getSystemService(LOCATION_SERVICE);
+                    if((new CityPreference(MainActivity.this).getLat() == 0.0) &&
+                            (new CityPreference(MainActivity.this).getLon() == 0.0))
+                    {
                         mEmptyTextView.setVisibility(View.VISIBLE);
-                    } else if ((new CityPreference(MainActivity.this).getLat() != 0.0) &&
-                            (new CityPreference(MainActivity.this).getLon() != 0.0)) {
+                    }
+                    else if((new CityPreference(MainActivity.this).getLat() != 0.0) &&
+                            (new CityPreference(MainActivity.this).getLon() != 0.0))
+                    {
                         updateWeatherData(new CityPreference(MainActivity.this).getCity(), new CityPreference(MainActivity.this).getLat(),
                                 new CityPreference(MainActivity.this).getLon(), new CityPreference(MainActivity.this).getNowURL());
                     }
-                    if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) == false) {
+                    if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) == false)
+                    {
                         showSettingsAlert();
                     }
                 } else {
-                    if ((new CityPreference(MainActivity.this).getLat() == 0.0) &&
-                            (new CityPreference(MainActivity.this).getLon() == 0.0)) {
+                    if((new CityPreference(MainActivity.this).getLat() == 0.0) &&
+                            (new CityPreference(MainActivity.this).getLon() == 0.0))
+                    {
                         mEmptyTextView.setVisibility(View.VISIBLE);
                         Toast.makeText(MainActivity.this,
-                                "Permission Denied, You cannot access location data",
-                                Toast.LENGTH_LONG).show();
-                    } else if ((new CityPreference(MainActivity.this).getLat() != 0.0) &&
-                            (new CityPreference(MainActivity.this).getLon() != 0.0)) {
+                            "Permission Denied, You cannot access location data",
+                            Toast.LENGTH_LONG).show();
+                    }
+                    else if((new CityPreference(MainActivity.this).getLat() != 0.0) &&
+                            (new CityPreference(MainActivity.this).getLon() != 0.0))
+                    {
                         updateWeatherData(new CityPreference(MainActivity.this).getCity(), new CityPreference(MainActivity.this).getLat(),
                                 new CityPreference(MainActivity.this).getLon(), new CityPreference(MainActivity.this).getNowURL());
                         Toast.makeText(MainActivity.this,
@@ -631,8 +630,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     @Override
     protected void onStart() {
         super.onStart();
-        stopResult = false;
-        onCreareToolBar();
         setVisibleLoginItem();
         mAuth.addAuthStateListener(mAuthListener);
         //-------------------------------------------------------------------------------------------------------------------
@@ -660,7 +657,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     @Override
     protected void onPause() {
         super.onPause();
-        stopResult = true;
         RealmDbHelper dbHelper = new RealmDbHelper();
         ModelUser u = new ModelUser();
         u = dbHelper.retriveUserFromRealm(this);
@@ -677,7 +673,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     @Override
     public void onStop() {
         super.onStop();
-        stopResult = true;
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
@@ -699,7 +694,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
                 });
     }
 
-    @TargetApi(Build.VERSION_CODES.CUPCAKE)
     private void InitializeDialog() {
         d = new Dialog(this);
         d.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -716,8 +710,8 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         FirebaseHelper.modelUser = users;
-        if (FavoriteLocationWeather.listLocation.size() == 0)
-            FavoriteLocationWeather.listLocation = FirebaseHelper.modelUser.getLocation().getLocation();
+        if(FavoriteLocationWeather.listLocation.size()==0)
+        FavoriteLocationWeather.listLocation = FirebaseHelper.modelUser.getLocation().getLocation();
         onCreateNavigationDraver();
         Log.e(TAG, "FirebaseHelper.modelUser size = " + FirebaseHelper.modelUser.getLocation().getLocation().size());
         Log.e(TAG, "FavoriteLocationWeather.listLocation size = " + FavoriteLocationWeather.listLocation.size());
@@ -727,9 +721,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     private void onCreateNavigationDraver() {
         NavigationDraverFragment draverFragment = (NavigationDraverFragment)
                 getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_draver);
-        if (!stopResult) {
-            draverFragment.setUp(R.id.fragment_navigation_draver, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar, users, uid);
-        }
+        draverFragment.setUp(R.id.fragment_navigation_draver, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar, users, uid);
     }
 
     @Override
@@ -738,39 +730,40 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         return true;
     }
 
-    @TargetApi(Build.VERSION_CODES.CUPCAKE)
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         LocationManager locationManager = (LocationManager) getApplication()
                 .getSystemService(LOCATION_SERVICE);
-        if (item.getItemId() == R.id.exit) {
+        HeadActivityTask headActivityTask2 = new HeadActivityTask();
+      if (item.getItemId() == R.id.exit) {
             finish();
-        } else if (item.getItemId() == R.id.refresh) {
-            HeadActivityTask headActivityTask2 = new HeadActivityTask();
-            int result1 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-            if ((locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) && (result1 == PackageManager.PERMISSION_GRANTED)) {
-                if ((nowURL == BASE_CURRENT_WEATHER_URL_COORD)) {
-                    coord = mHelper.CoordTracker(getApplicationContext());
-                    updateWeatherData(city, coord[0], coord[1], nowURL);
-                    new CityPreference(this).setLat(coord[0]);
-                    new CityPreference(this).setLon(coord[1]);
-                    //  headActivityTask2.execute();
-                } else if ((nowURL == BASE_CURRENT_WEATHER_URL_CITY)) {
-                    updateWeatherData(city, coord[0], coord[1], nowURL);
-                    // headActivityTask2.execute();
-                }
-            }
-        } else if (item.getItemId() == R.id.settings) {
-//           Intent intent = new Intent(this, MySettingsActivity.class);
-//           startActivity(intent);
         }
+      else if (item.getItemId() == R.id.refresh) {
+          int result1 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+          if ((locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) && (result1 == PackageManager.PERMISSION_GRANTED)) {
+              if ((nowURL == BASE_CURRENT_WEATHER_URL_COORD)) {
+                  coord = mHelper.CoordTracker(getApplicationContext());
+                  updateWeatherData(city, coord[0], coord[1], nowURL);
+                  new CityPreference(this).setLat(coord[0]);
+                  new CityPreference(this).setLon(coord[1]);
+                  headActivityTask2.execute();
+              } else if ((nowURL == BASE_CURRENT_WEATHER_URL_CITY)) {
+                  updateWeatherData(city, coord[0], coord[1], nowURL);
+                  headActivityTask2.execute();
+              }
+          }else {Toast.makeText(MainActivity.this,
+                  "Internet or/and GPS is enabled. Please, turn on these.",
+                  Toast.LENGTH_LONG).show();}
+        }
+      else if (item.getItemId() == R.id.settings) {
+           Intent intent = new Intent(this, MySettingsActivity.class);
+           startActivity(intent);
+      }
         return false;
     }
-
-    ///////////////////////////////////////////dddddddddddddddddddddddddddddddddddddddd
-    @TargetApi(Build.VERSION_CODES.CUPCAKE)
+///////////////////////////////////////////dddddddddddddddddddddddddddddddddddddddd
     private void carentLOcationRefresh(LocationManager locationManager) {
-        int result1 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+       int result1 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         if ((locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) && (result1 == PackageManager.PERMISSION_GRANTED)) {
             nowURL = BASE_CURRENT_WEATHER_URL_COORD;
             coord = mHelper.CoordTracker(getApplicationContext());
@@ -781,7 +774,9 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
             new CityPreference(this).setLon(coord[1]);
             HeadActivityTask headActivityTask = new HeadActivityTask();
             headActivityTask.execute();
-        }
+        }  else {Toast.makeText(MainActivity.this,
+                "Internet or/and GPS is enabled. Please, turn on these.",
+                Toast.LENGTH_LONG).show();}
     }
 
     private void showDialogLogin() {
@@ -812,7 +807,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         etRegister.setSelectAllOnFocus(true);
 
         checkBoxShowPassword.setOnClickListener(new View.OnClickListener() {
-            @TargetApi(Build.VERSION_CODES.CUPCAKE)
             @Override
             public void onClick(View view) {
                 if (checkBoxShowPassword.isChecked()) {
@@ -951,8 +945,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         etPassword.setText("");
         mProgressBar.setVisibility(View.INVISIBLE);
         ibLogin.setImageDrawable(getResources().getDrawable(R.drawable.ic_lock_outline_white_24dp));
-        //onCreareToolBar();
-        //onCreateNavigationDraver();
+        onCreareToolBar();
     }
 
     @Override
@@ -960,7 +953,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         dialogClosed();
     }
 
-    @TargetApi(Build.VERSION_CODES.CUPCAKE)
     @Override
     public void loginUserFirebase(String userLogin, String userPassword) {
         loginFirebase(userLogin, userPassword);
@@ -986,7 +978,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         progressBar.setVisibility(View.INVISIBLE);
     }
 
-    @TargetApi(Build.VERSION_CODES.CUPCAKE)
     private class LoginProgress extends AsyncTask<Void, Void, Void> {
         @Override
         protected void onPreExecute() {
@@ -1002,8 +993,8 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
             }
             mAuth = FirebaseAuth.getInstance();
             if (mAuth.getCurrentUser() != null) {
-                if (users.getUserName() == null)
-                    presenter.loginFacebook(profile, mAuth.getCurrentUser().getUid(), getApplicationContext());
+                if(users.getUserName()==null)
+                presenter.loginFacebook(profile, mAuth.getCurrentUser().getUid(), getApplicationContext());
                 firebaseHelper.retrivDataUser(mAuth.getCurrentUser().getUid());
                 firebaseHelper.downloadPhotoStorage(mAuth.getCurrentUser().getUid());
                 uid = mAuth.getCurrentUser().getUid();
